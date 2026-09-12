@@ -1,0 +1,3168 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calcul &amp; Lecture</title>
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f2b52">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap">
+<script defer crossorigin="anonymous"
+  src="https://grand-tuna-8368.clerk.accounts.dev/npm/@clerk/ui@1/dist/ui.browser.js"></script>
+<script defer crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_Z3JhbmQtdHVuYS04MzY4LmNsZXJrLmFjY291bnRzLmRldiQ"
+  src="https://grand-tuna-8368.clerk.accounts.dev/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg-a: #163e73;
+    --bg-b: #071a33;
+    --bg-c: #050f21;
+    --paper: #0f2b52;
+    --paper-alt: #123568;
+    --paper-line: #1f4d8c;
+    --ink: #F4F7FC;
+    --ink-soft: #9FB6DE;
+    --accent: #F2B134;
+    --accent-ink: #3A2508;
+    --good: #4ECDA0;
+    --bad: #F0685B;
+    --good-bg: #123f34;
+    --bad-bg: #40201c;
+    --shadow: rgba(2, 8, 20, 0.55);
+    --dot-empty: #23477c;
+    --key-bg: #163a6c;
+    --cat: #E8935B;
+    --cat-dark: #C97645;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background:
+      radial-gradient(circle at 50% -10%, var(--bg-a) 0%, var(--bg-b) 55%, var(--bg-c) 100%);
+    color: var(--ink);
+    font-family: 'Public Sans', -apple-system, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *:not(.slime-overlay):not(.slime-wash):not(.slime-drip):not(.confetti-piece):not(.pop-toast):not(.firework-particle) {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  .sheet {
+    width: 100%;
+    max-width: 460px;
+    background: var(--paper);
+    border-radius: 16px;
+    box-shadow: 0 18px 40px var(--shadow);
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 16px, color-mix(in srgb, var(--paper-alt) 55%, transparent) 17px, color-mix(in srgb, var(--paper-alt) 55%, transparent) 18px),
+      radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--accent) 10%, transparent) 0, transparent 42%);
+    padding: 30px 26px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sheet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--accent), #ffe6a3, var(--accent));
+  }
+
+  header.sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 6px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 28px;
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .tagline {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 4px 0 0;
+  }
+
+  .head-right {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .lang-switch {
+    display: flex;
+    gap: 3px;
+  }
+
+  .lang-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--paper-line);
+    border-radius: 6px;
+    padding: 3px 6px;
+    cursor: pointer;
+  }
+
+  .lang-btn:hover { color: var(--ink); }
+
+  .lang-btn[aria-pressed="true"] {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .auth-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+  }
+
+  .auth-box[hidden] { display: none; }
+
+  .auth-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--paper-line);
+    border-radius: 6px;
+    padding: 3px 8px;
+    cursor: pointer;
+  }
+
+  .auth-btn:hover { color: var(--ink); }
+
+  .auth-btn.go {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .grade-box {
+    flex: none;
+    width: 58px;
+    height: 58px;
+    border: 2.5px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--accent);
+    transform: rotate(-6deg);
+    font-variant-numeric: tabular-nums;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+
+  .level-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .expert-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .tab {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1.5px solid var(--paper-line);
+    border-radius: 8px 8px 3px 3px;
+    padding: 8px 11px 7px;
+    cursor: pointer;
+  }
+
+  .tab:hover { color: var(--ink); }
+
+  .tab[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--accent) 14%, var(--paper));
+    color: var(--ink);
+    border-color: var(--accent);
+    box-shadow: 0 2px 0 var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .tab:focus-visible, button:focus-visible {
+    outline: 2.5px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .dots {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--dot-empty);
+    flex: none;
+  }
+
+  .dot.current {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .dot.good { background: var(--good); }
+  .dot.bad { background: var(--bad); }
+
+  .equation {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 12px;
+    font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    font-weight: 600;
+    font-size: 44px;
+    font-variant-numeric: tabular-nums;
+    margin: 4px 0 20px;
+  }
+
+  .equation .eq { color: var(--ink-soft); font-size: 32px; }
+
+  #answerDisplay {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 76px;
+    height: 56px;
+    padding: 0 10px;
+    border-bottom: 3px solid var(--accent);
+    color: var(--ink);
+  }
+
+  #answerDisplay.placeholder { color: var(--dot-empty); }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 260px;
+    margin: 0 0 18px;
+  }
+
+  .key {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--ink);
+    background: var(--key-bg);
+    border: 1.5px solid var(--paper-line);
+    border-radius: 10px;
+    height: 56px;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .key:active { transform: translateY(1px); }
+  .key:disabled { opacity: 0.45; cursor: default; }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  button.primary {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-ink);
+    background: var(--accent);
+    border: none;
+    border-radius: 9px;
+    padding: 13px 26px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 color-mix(in srgb, var(--accent-ink) 35%, transparent);
+  }
+
+  button.primary:active { transform: translateY(1px); box-shadow: none; }
+  button.primary:disabled { opacity: 0.45; cursor: default; transform: none; box-shadow: none; }
+
+  button.ghost {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1.5px solid var(--paper-line);
+    border-radius: 9px;
+    padding: 11px 18px;
+    cursor: pointer;
+  }
+
+  .feedback {
+    min-height: 26px;
+    margin-top: 14px;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15.5px;
+  }
+
+  .feedback.good { color: var(--good); }
+  .feedback.bad { color: var(--bad); }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--paper-line);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    flex-wrap: wrap;
+  }
+
+  .stats b { color: var(--ink); font-weight: 600; }
+
+  .music-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+  }
+
+  .music-toggle input[type="range"] {
+    width: 66px;
+    height: 14px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .switch {
+    position: relative;
+    width: 34px;
+    height: 18px;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--paper-line);
+    border-radius: 999px;
+    background: var(--key-bg);
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+
+  .switch .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ink-soft);
+    transition: transform 0.18s ease, background 0.18s ease;
+  }
+
+  .switch[aria-checked="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .switch[aria-checked="true"] .knob {
+    transform: translateX(16px);
+    background: var(--accent-ink);
+  }
+
+  .reset-btn {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: none;
+    border: none;
+    border-bottom: 1px dotted var(--paper-line);
+    padding: 0 0 1px;
+    cursor: pointer;
+  }
+
+  .reset-btn:hover { color: var(--bad); border-bottom-color: var(--bad); }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 10, 22, 0.68);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 10000;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 340px;
+    background: var(--paper);
+    border: 1px solid var(--paper-line);
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+    box-shadow: 0 22px 50px rgba(2, 8, 20, 0.6);
+  }
+
+  .modal h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+
+  .modal p {
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  button.danger {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #2c0b06;
+    background: var(--bad);
+    border: none;
+    border-radius: 9px;
+    padding: 11px 18px;
+    cursor: pointer;
+  }
+
+  .results { text-align: left; }
+
+  .results .grade {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 122px;
+    height: 122px;
+    border: 3.5px solid var(--good);
+    color: var(--good);
+    border-radius: 50%;
+    transform: rotate(-4deg);
+    margin-bottom: 16px;
+    background: color-mix(in srgb, var(--good) 10%, transparent);
+  }
+
+  .results.low .grade {
+    border-color: var(--bad);
+    color: var(--bad);
+    background: color-mix(in srgb, var(--bad) 10%, transparent);
+  }
+
+  .results p {
+    font-size: 15.5px;
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+  }
+
+  .results p b { color: var(--ink); }
+
+  @keyframes popBounce {
+    0% { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+    55% { transform: scale(1.18) rotate(3deg); opacity: 1; }
+    75% { transform: scale(0.94) rotate(-1deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .pop-toast {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 6;
+  }
+
+  .pop-toast .word {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 54px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-shadow: 0 8px 20px rgba(2, 8, 20, 0.55);
+  }
+
+  .pop-toast.show {
+    opacity: 1;
+    animation: popBounce 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .pop-toast.good .word { color: var(--good); }
+  .pop-toast.bad .word { color: var(--bad); }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-12px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(320px) rotate(540deg); opacity: 0; }
+  }
+
+  .confetti-piece {
+    position: absolute;
+    top: 0;
+    width: 7px;
+    height: 12px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 7;
+    animation-name: confettiFall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes slimeDrip {
+    0% { transform: scaleY(0); opacity: 0; }
+    15% { transform: scaleY(1); opacity: 1; }
+    78% { transform: scaleY(1); opacity: 1; }
+    100% { transform: scaleY(0.1); opacity: 0; }
+  }
+
+  @keyframes slimeWash {
+    0% { opacity: 0; }
+    14% { opacity: 1; }
+    72% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .slime-overlay {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .slime-wash {
+    position: absolute;
+    inset: 0;
+    background: rgba(139, 195, 74, 0.24);
+    opacity: 0;
+    animation: slimeWash 2.3s ease-in-out forwards;
+  }
+
+  .slime-drip {
+    position: absolute;
+    top: -20px;
+    border-radius: 45% 45% 50% 50% / 65% 65% 35% 35%;
+    transform-origin: top center;
+    box-shadow: inset 0 -8px 14px rgba(0, 0, 0, 0.2);
+    animation-name: slimeDrip;
+    animation-duration: 2.2s;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes fireworkFly {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+  }
+
+  .firework-overlay {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  .firework-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: fireworkFly 1.1s ease-out forwards;
+  }
+
+  .cat-pop {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .cat-bubble {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--accent-ink);
+    background: var(--accent);
+    padding: 4px 9px;
+    border-radius: 999px;
+  }
+
+  .subject-switch {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 18px;
+  }
+
+  .subject-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink-soft);
+    background: color-mix(in srgb, var(--paper-alt) 60%, transparent);
+    border: 1.5px solid var(--paper-line);
+    border-radius: 999px;
+    padding: 9px 14px;
+    cursor: pointer;
+  }
+
+  .subject-btn:hover { color: var(--ink); }
+
+  .subject-btn .ico { font-size: 16px; }
+
+  .subject-btn[aria-pressed="true"] {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 2px 0 color-mix(in srgb, var(--accent-ink) 30%, transparent);
+  }
+
+  .prompt {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+
+  .picture {
+    font-size: 66px;
+    line-height: 1.15;
+    text-align: center;
+    margin: 2px 0 18px;
+    filter: drop-shadow(0 6px 12px rgba(2, 8, 20, 0.5));
+  }
+
+  .story {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 16.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--paper-alt) 70%, transparent);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px 10px 10px 4px;
+    padding: 12px 14px;
+    margin: 0 0 16px;
+  }
+
+  .question {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+
+  .question .gap {
+    display: inline-block;
+    min-width: 64px;
+    border-bottom: 3px solid var(--accent);
+    vertical-align: -3px;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 0 0 18px;
+  }
+
+  .choices.stack { grid-template-columns: 1fr; }
+
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-align: left;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--ink);
+    background: var(--key-bg);
+    border: 1.5px solid var(--paper-line);
+    border-radius: 10px;
+    padding: 12px 13px;
+    min-height: 52px;
+    cursor: pointer;
+  }
+
+  .choice .num {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: color-mix(in srgb, var(--paper-line) 75%, transparent);
+  }
+
+  .choice:active { transform: translateY(1px); }
+  .choice:disabled { cursor: default; }
+
+  .choice[aria-pressed="true"] {
+    border-color: var(--accent);
+    box-shadow: 0 2px 0 var(--accent);
+  }
+
+  .choice[aria-pressed="true"] .num {
+    color: var(--accent-ink);
+    background: var(--accent);
+  }
+
+  .choice.correct {
+    border-color: var(--good);
+    background: var(--good-bg);
+    box-shadow: 0 2px 0 var(--good);
+  }
+
+  .choice.correct .num { color: #06281f; background: var(--good); }
+
+  .choice.wrong {
+    border-color: var(--bad);
+    background: var(--bad-bg);
+    box-shadow: 0 2px 0 var(--bad);
+  }
+
+  .choice.wrong .num { color: #2c0f0c; background: var(--bad); }
+
+  .choice.dim { opacity: 0.45; }
+
+  .reader-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    background: color-mix(in srgb, var(--paper-alt) 55%, transparent);
+    border: 1.5px solid var(--paper-line);
+    border-radius: 12px;
+    padding: 12px 13px;
+    margin: 0 0 16px;
+  }
+
+  .reader-modes { display: flex; gap: 6px; }
+
+  .reader-mode {
+    flex: 1;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1.5px solid var(--paper-line);
+    border-radius: 8px;
+    padding: 7px 10px;
+    cursor: pointer;
+  }
+
+  .reader-mode:hover { color: var(--ink); }
+
+  .reader-mode[aria-pressed="true"] {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .reader-speed {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .reader-speed input[type="range"] {
+    flex: 1;
+    min-width: 90px;
+    accent-color: var(--accent);
+  }
+
+  .speed-val {
+    flex: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .speed-val b { color: var(--accent); font-size: 13px; }
+
+  .reader-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .reader-btn {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1.5px solid var(--paper-line);
+    border-radius: 8px;
+    padding: 9px 13px;
+    cursor: pointer;
+  }
+
+  .reader-btn:hover { color: var(--ink); }
+  .reader-btn:active { transform: translateY(1px); }
+
+  .reader-btn.go {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  .word-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 132px;
+    padding: 8px 6px;
+    margin: 0 0 16px;
+    background: color-mix(in srgb, var(--paper-alt) 70%, transparent);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px 10px 10px 4px;
+    text-align: center;
+  }
+
+  #bigWord {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1.15;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  #bigWord.dim { color: var(--dot-empty); }
+
+  .story.passage { line-height: 1.85; }
+
+  .story .w {
+    border-radius: 4px;
+    padding: 1px 3px;
+    margin: 0 -3px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .story .w.now {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .celebrate-backdrop { z-index: 9995; }
+
+  .modal.celebrate { max-width: 320px; text-align: center; }
+
+  .modal.celebrate h2 { font-size: 27px; }
+
+  .modal.celebrate .modal-actions { justify-content: center; }
+
+  .celebrate-flame {
+    font-size: 56px;
+    line-height: 1;
+    margin: 2px 0 8px;
+    animation: popBounce 0.55s ease;
+  }
+
+  .celebrate-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 4px;
+  }
+
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="sheet" id="sheet" lang="fr">
+  <header class="sheet-head">
+    <div>
+      <p class="eyebrow" id="sheetLabel">Défi n° 1</p>
+      <h1 id="titleText">Calcul mental</h1>
+      <p class="tagline" id="taglineText">Entraînement façon Salish &amp; Jordan Matter 🤸</p>
+    </div>
+    <div class="head-right">
+      <div class="lang-switch" role="group" aria-label="Langue / Language / Taal">
+        <button class="lang-btn" data-lang="fr" aria-pressed="true">FR</button>
+        <button class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+        <button class="lang-btn" data-lang="nl" aria-pressed="false">NL</button>
+      </div>
+      <div class="auth-box" id="authBox" hidden>
+        <button class="auth-btn" type="button" id="signInBtn">Se connecter</button>
+        <button class="auth-btn go" type="button" id="signUpBtn">Créer un compte</button>
+        <div id="userButton" hidden></div>
+      </div>
+      <div class="grade-box" id="gradeBox">0/10</div>
+    </div>
+  </header>
+
+  <div class="subject-switch" id="subjectSwitch" role="group" aria-label="Matière">
+    <button class="subject-btn" type="button" data-subject="math" aria-pressed="true"><span class="ico" aria-hidden="true">🧮</span><span class="txt">Calcul</span></button>
+    <button class="subject-btn" type="button" data-subject="reading" aria-pressed="false"><span class="ico" aria-hidden="true">📖</span><span class="txt">Lecture</span></button>
+  </div>
+
+  <div class="level-row">
+  <div class="tabs" id="tabsGroup" role="tablist" aria-label="Niveau"></div>
+    <span class="expert-toggle">
+      <span id="expertLabel">Mode expert</span>
+      <button class="switch" id="expertBtn" type="button" role="switch" aria-checked="false" aria-labelledby="expertLabel"><span class="knob"></span></button>
+    </span>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div id="problemZone">
+    <div id="mathZone">
+      <div class="equation" id="equation" aria-live="off"></div>
+
+      <div class="keypad" id="keypad" role="group" aria-label="Clavier numérique"></div>
+    </div>
+
+    <div id="readingZone" hidden>
+      <p class="prompt" id="readPrompt"></p>
+      <div class="picture" id="readPicture" hidden aria-hidden="true"></div>
+
+      <div class="reader-bar" id="readerBar" hidden>
+        <div class="reader-modes" id="readerModes" role="group" aria-label="Mode de lecture">
+          <button class="reader-mode" type="button" data-reader="along" aria-pressed="true">Lire avec moi</button>
+          <button class="reader-mode" type="button" data-reader="word" aria-pressed="false">Un mot</button>
+        </div>
+        <label class="reader-speed">
+          <span id="speedLabel">Vitesse</span>
+          <input type="range" id="readSpeed" min="40" max="220" step="5" value="90" aria-label="Vitesse de lecture">
+          <span class="speed-val"><b id="speedValue">90</b> <span id="speedUnit">mots/min</span></span>
+        </label>
+        <div class="reader-actions">
+          <button class="reader-btn go" type="button" id="playBtn">▶ Lire</button>
+          <button class="reader-btn" type="button" id="pauseBtn" hidden>⏸ Pause</button>
+          <button class="reader-btn" type="button" id="skipBtn">Passer à la question →</button>
+        </div>
+      </div>
+
+      <div class="word-stage" id="wordStage" hidden><span id="bigWord" class="dim"></span></div>
+
+      <p class="story" id="readStory" hidden></p>
+      <p class="question" id="readQuestion"></p>
+      <div class="choices" id="choices" role="group" aria-label="Réponses possibles"></div>
+    </div>
+
+    <div class="row">
+      <button class="primary" id="checkBtn" disabled>Valider</button>
+      <button class="ghost" id="nextBtn" hidden>Problème suivant →</button>
+    </div>
+    <p class="feedback" id="feedback" aria-live="polite"></p>
+  </div>
+
+  <div id="resultsZone" hidden>
+    <div class="results" id="resultsInner"></div>
+    <button class="primary" id="newSheetBtn">Nouveau défi</button>
+  </div>
+
+  <div class="stats">
+    <span id="streakWrap"></span>
+    <span id="bestWrap"></span>
+    <span class="music-toggle">
+      <span id="musicLabel">Musique</span>
+      <button class="switch" id="musicBtn" type="button" role="switch" aria-checked="false" aria-labelledby="musicLabel"><span class="knob"></span></button>
+      <input type="range" id="musicVolume" min="0" max="100" step="1" value="50" aria-label="Volume de la musique">
+    </span>
+    <button class="reset-btn" id="resetBtn" type="button">Réinitialiser</button>
+  </div>
+
+  <div class="cat-pop" id="catPop" hidden aria-hidden="true">
+    <svg viewBox="0 0 64 56" width="52" height="46">
+      <polygon points="14,20 21,4 28,20" fill="var(--cat)"></polygon>
+      <polygon points="36,20 43,4 50,20" fill="var(--cat)"></polygon>
+      <polygon points="17,15 21,7 25,15" fill="var(--cat-dark)"></polygon>
+      <polygon points="39,15 43,7 47,15" fill="var(--cat-dark)"></polygon>
+      <ellipse cx="32" cy="32" rx="22" ry="18" fill="var(--cat)"></ellipse>
+      <ellipse cx="24" cy="30" rx="3.2" ry="4" fill="#1c1c1c"></ellipse>
+      <ellipse cx="40" cy="30" rx="3.2" ry="4" fill="#1c1c1c"></ellipse>
+      <polygon points="32,34 29,38 35,38" fill="#c9647a"></polygon>
+      <line x1="14" y1="36" x2="2" y2="33" stroke="#1c1c1c" stroke-width="1.2"></line>
+      <line x1="14" y1="40" x2="2" y2="41" stroke="#1c1c1c" stroke-width="1.2"></line>
+      <line x1="50" y1="36" x2="62" y2="33" stroke="#1c1c1c" stroke-width="1.2"></line>
+      <line x1="50" y1="40" x2="62" y2="41" stroke="#1c1c1c" stroke-width="1.2"></line>
+    </svg>
+    <span class="cat-bubble" id="catBubbleText">Miaou !</span>
+  </div>
+
+  <div class="pop-toast" id="popToast" aria-hidden="true"><span class="word"></span></div>
+</div>
+
+<div class="modal-backdrop celebrate-backdrop" id="celebrateModal" hidden>
+  <div class="modal celebrate" role="dialog" aria-modal="true" aria-labelledby="celebrateTitle">
+    <div class="celebrate-flame" aria-hidden="true">🔥</div>
+    <p class="celebrate-count" id="celebrateCount">Série</p>
+    <h2 id="celebrateTitle">5 de suite !</h2>
+    <p id="celebrateBody">Tu es en feu !</p>
+    <div class="modal-actions">
+      <button class="primary" id="celebrateBtn" type="button">Continuer !</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="resetModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+    <h2 id="resetTitle">Effacer les scores ?</h2>
+    <p id="resetBody">Les meilleurs scores de tous les niveaux (calcul et lecture) et le numéro de défi seront remis à zéro. Cette action est définitive.</p>
+    <div class="modal-actions">
+      <button class="ghost" id="resetCancel" type="button">Annuler</button>
+      <button class="danger" id="resetConfirm" type="button">Effacer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var QUESTIONS = { normal: 10, expert: 20 };
+
+  var LEVELS = {
+    math: ['ten', 'twenty', 'carry'],
+    reading: ['word', 'sentence', 'story', 'text']
+  };
+
+  var STREAK_CELEBRATE = 5;
+
+  function loadExpertPref() {
+    try { return localStorage.getItem('calcul-mental-expert') === 'on'; } catch (e) { return false; }
+  }
+
+  var READ_SPEED_DEFAULT = 90;
+
+  function loadReaderMode() {
+    try { return localStorage.getItem('calcul-mental-reader-mode') === 'word' ? 'word' : 'along'; }
+    catch (e) { return 'along'; }
+  }
+
+  function loadReaderSpeed() {
+    try {
+      var v = parseInt(localStorage.getItem('calcul-mental-reader-speed'), 10);
+      return (isFinite(v) && v >= 40 && v <= 220) ? v : READ_SPEED_DEFAULT;
+    } catch (e) { return READ_SPEED_DEFAULT; }
+  }
+
+  function loadSubjectPref() {
+    try { return localStorage.getItem('calcul-mental-subject') === 'reading' ? 'reading' : 'math'; } catch (e) { return 'math'; }
+  }
+  var CLICK_PEAK = 0.12;
+
+  var LANG = {
+    fr: {
+      title: 'Calcul mental',
+      tagline: 'Entraînement façon Salish & Jordan Matter 🤸',
+      challenge: function (n) { return 'Défi n° ' + n; },
+      levelLabels: { ten: "Jusqu'à 10", twenty: "Jusqu'à 20", carry: 'Passage de dix', word: 'Mots', sentence: 'Phrases', story: 'Histoires', text: 'Texte' },
+      readTitle: 'Lecture',
+      readTagline: 'Lis, choisis, décolle — comme à l’entraînement 📖',
+      subjects: { math: 'Calcul', reading: 'Lecture' },
+      subjectGroupAria: 'Matière',
+      choicesAria: 'Réponses possibles',
+      readPrompts: {
+        word: "Quel mot correspond à l'image ?",
+        sentence: 'Complète la phrase.',
+        story: 'Lis le texte, puis réponds.',
+        text: 'Lis le texte à ton rythme, puis réponds.'
+      },
+      readerAlong: 'Lire avec moi',
+      readerWord: 'Un mot',
+      readerAria: 'Mode de lecture',
+      speedLabel: 'Vitesse',
+      speedAria: 'Vitesse de lecture',
+      speedUnit: 'mots/min',
+      playBtn: '\u25B6 Lire',
+      resumeBtn: '\u25B6 Reprendre',
+      pauseBtn: '\u23F8 Pause',
+      replayBtn: '\u21BB Relire',
+      skipBtn: 'Passer à la question →',
+      levelAriaCarry: 'Passage de la dizaine',
+      levelGroupAria: 'Niveau',
+      keypadAria: 'Clavier numérique',
+      backspaceAria: 'Effacer',
+      validateAria: 'Valider',
+      validateBtn: 'Valider',
+      nextBtn: 'Problème suivant →',
+      newSheetBtn: 'Nouveau défi',
+      resetBtn: 'Réinitialiser',
+      musicLabel: 'Musique',
+      volumeLabel: 'Volume de la musique',
+      expertLabel: 'Mode expert',
+      streakLabel: 'Série :',
+      bestLabel: function (level) { return 'Meilleur (' + level + ') :'; },
+      bestEmpty: '—',
+      catBubble: 'Miaou !',
+      goodMessages: ['Bravo !', 'Parfait !', 'Salto réussi !', 'Belle vrille !', 'Comme un 10 en gym !'],
+      comboSuffix: function (n) { return ' ' + n + ' à la suite — une vraie combo !'; },
+      incorrectMsg: function (ans) { return 'Presque ! La réponse était ' + ans + '.'; },
+      resultsBonus: ' Un enchaînement digne de Salish & Jordan Matter !',
+      resultsText: function (correct, total, level, bonus) {
+        return '<b>' + correct + ' sur ' + total + '</b> bonnes réponses — niveau ' + level + '.' + bonus;
+      },
+      popYeah: 'YEAH !',
+      popOoh: 'OOH !',
+      modalTitle: 'Effacer les scores ?',
+      modalBody: 'Les meilleurs scores de tous les niveaux (calcul et lecture) et le numéro de défi seront remis à zéro. Cette action est définitive.',
+      modalCancel: 'Annuler',
+      celebrateCount: 'Série',
+      celebrateTitle: function (n) { return n + ' de suite !'; },
+      celebrateMessages: ['Tu es en feu !', 'Rien ne t’arrête !', 'Quelle série !', 'Continue comme ça !', 'Tu assures vraiment !'],
+      celebrateBtn: 'Continuer !',
+      modalConfirm: 'Effacer',
+      signInBtn: 'Se connecter',
+      signUpBtn: 'Créer un compte'
+    },
+    en: {
+      title: 'Mental Math',
+      tagline: 'Training like Salish & Jordan Matter 🤸',
+      challenge: function (n) { return 'Challenge #' + n; },
+      levelLabels: { ten: 'Up to 10', twenty: 'Up to 20', carry: 'Crossing ten', word: 'Words', sentence: 'Sentences', story: 'Stories', text: 'Text' },
+      readTitle: 'Reading',
+      readTagline: 'Read, choose, take off — just like training 📖',
+      subjects: { math: 'Math', reading: 'Reading' },
+      subjectGroupAria: 'Subject',
+      choicesAria: 'Answer choices',
+      readPrompts: {
+        word: 'Which word matches the picture?',
+        sentence: 'Complete the sentence.',
+        story: 'Read the text, then answer.',
+        text: 'Read the text at your own pace, then answer.'
+      },
+      readerAlong: 'Read with me',
+      readerWord: 'One word',
+      readerAria: 'Reading mode',
+      speedLabel: 'Speed',
+      speedAria: 'Reading speed',
+      speedUnit: 'words/min',
+      playBtn: '\u25B6 Read',
+      resumeBtn: '\u25B6 Resume',
+      pauseBtn: '\u23F8 Pause',
+      replayBtn: '\u21BB Read again',
+      skipBtn: 'Skip to the question →',
+      levelAriaCarry: 'Crossing the ten',
+      levelGroupAria: 'Level',
+      keypadAria: 'Number pad',
+      backspaceAria: 'Backspace',
+      validateAria: 'Check',
+      validateBtn: 'Check',
+      nextBtn: 'Next problem →',
+      newSheetBtn: 'New challenge',
+      resetBtn: 'Reset',
+      musicLabel: 'Music',
+      volumeLabel: 'Music volume',
+      expertLabel: 'Expert mode',
+      streakLabel: 'Streak:',
+      bestLabel: function (level) { return 'Best (' + level + '):'; },
+      bestEmpty: '—',
+      catBubble: 'Meow!',
+      goodMessages: ['Great job!', 'Perfect!', 'Nice flip!', 'Awesome twist!', 'Like a perfect 10!'],
+      comboSuffix: function (n) { return ' ' + n + ' in a row — a real combo!'; },
+      incorrectMsg: function (ans) { return 'Almost! The answer was ' + ans + '.'; },
+      resultsBonus: ' A routine worthy of Salish & Jordan Matter!',
+      resultsText: function (correct, total, level, bonus) {
+        return '<b>' + correct + ' out of ' + total + '</b> correct — ' + level + ' level.' + bonus;
+      },
+      popYeah: 'YEAH!',
+      popOoh: 'OOH!',
+      modalTitle: 'Clear your scores?',
+      modalBody: "Best scores for every level (math and reading) and the challenge number will be reset. This can't be undone.",
+      modalCancel: 'Cancel',
+      celebrateCount: 'Streak',
+      celebrateTitle: function (n) { return n + ' in a row!'; },
+      celebrateMessages: ['You are on fire!', 'Nothing can stop you!', 'What a streak!', 'Keep it up!', 'You are crushing it!'],
+      celebrateBtn: 'Keep going!',
+      modalConfirm: 'Clear',
+      signInBtn: 'Sign in',
+      signUpBtn: 'Sign up'
+    },
+    nl: {
+      title: 'Hoofdrekenen',
+      tagline: 'Training in de stijl van Salish & Jordan Matter 🤸',
+      challenge: function (n) { return 'Uitdaging nr. ' + n; },
+      levelLabels: { ten: 'Tot 10', twenty: 'Tot 20', carry: 'Over het tiental', word: 'Woorden', sentence: 'Zinnen', story: 'Verhalen', text: 'Tekst' },
+      readTitle: 'Lezen',
+      readTagline: 'Lezen, kiezen, opstijgen — net als bij de training 📖',
+      subjects: { math: 'Rekenen', reading: 'Lezen' },
+      subjectGroupAria: 'Vak',
+      choicesAria: 'Antwoordkeuzes',
+      readPrompts: {
+        word: 'Welk woord hoort bij het plaatje?',
+        sentence: 'Vul de zin aan.',
+        story: 'Lees de tekst en beantwoord de vraag.',
+        text: 'Lees de tekst op je eigen tempo en beantwoord de vraag.'
+      },
+      readerAlong: 'Lees mee',
+      readerWord: 'Eén woord',
+      readerAria: 'Leesmodus',
+      speedLabel: 'Snelheid',
+      speedAria: 'Leessnelheid',
+      speedUnit: 'woorden/min',
+      playBtn: '\u25B6 Lezen',
+      resumeBtn: '\u25B6 Verder',
+      pauseBtn: '\u23F8 Pauze',
+      replayBtn: '\u21BB Opnieuw',
+      skipBtn: 'Naar de vraag →',
+      levelAriaCarry: 'Passeren van het tiental',
+      levelGroupAria: 'Niveau',
+      keypadAria: 'Numeriek toetsenbord',
+      backspaceAria: 'Wissen',
+      validateAria: 'Controleer',
+      validateBtn: 'Controleer',
+      nextBtn: 'Volgende opgave →',
+      newSheetBtn: 'Nieuwe uitdaging',
+      resetBtn: 'Resetten',
+      musicLabel: 'Muziek',
+      volumeLabel: 'Muziekvolume',
+      expertLabel: 'Expertmodus',
+      streakLabel: 'Reeks:',
+      bestLabel: function (level) { return 'Beste (' + level + '):'; },
+      bestEmpty: '—',
+      catBubble: 'Miauw!',
+      goodMessages: ['Goed zo!', 'Perfect!', 'Mooie salto!', 'Knappe draai!', 'Een 10 waardig!'],
+      comboSuffix: function (n) { return ' ' + n + ' op rij — een echte combo!'; },
+      incorrectMsg: function (ans) { return 'Bijna! Het antwoord was ' + ans + '.'; },
+      resultsBonus: ' Een oefening waardig van Salish & Jordan Matter!',
+      resultsText: function (correct, total, level, bonus) {
+        return '<b>' + correct + ' van de ' + total + '</b> goed — niveau ' + level + '.' + bonus;
+      },
+      popYeah: 'JA!',
+      popOoh: 'OEI!',
+      modalTitle: 'Scores wissen?',
+      modalBody: 'De beste scores van alle niveaus (rekenen en lezen) en het uitdagingsnummer worden gereset. Dit kan niet ongedaan worden gemaakt.',
+      modalCancel: 'Annuleren',
+      celebrateCount: 'Reeks',
+      celebrateTitle: function (n) { return n + ' op rij!'; },
+      celebrateMessages: ['Je bent niet te stoppen!', 'Wat een reeks!', 'Ga zo door!', 'Je doet het geweldig!', 'Sterk bezig!'],
+      celebrateBtn: 'Doorgaan!',
+      modalConfirm: 'Wissen',
+      signInBtn: 'Inloggen',
+      signUpBtn: 'Registreren'
+    }
+  };
+
+  var READING = {
+    fr: {
+      words: [
+        { emoji: "🐱", word: "chat" }, { emoji: "🐶", word: "chien" }, { emoji: "🏠", word: "maison" },
+        { emoji: "🌳", word: "arbre" }, { emoji: "🚗", word: "voiture" }, { emoji: "☀️", word: "soleil" },
+        { emoji: "🌙", word: "lune" }, { emoji: "🌸", word: "fleur" }, { emoji: "🐟", word: "poisson" },
+        { emoji: "🍎", word: "pomme" }, { emoji: "🍞", word: "pain" }, { emoji: "🥛", word: "lait" },
+        { emoji: "📕", word: "livre" }, { emoji: "✏️", word: "crayon" }, { emoji: "🏫", word: "école" },
+        { emoji: "🚲", word: "vélo" }, { emoji: "🐦", word: "oiseau" }, { emoji: "🐴", word: "cheval" },
+        { emoji: "🐄", word: "vache" }, { emoji: "🦋", word: "papillon" }, { emoji: "🌧️", word: "pluie" },
+        { emoji: "⭐", word: "étoile" }, { emoji: "🎈", word: "ballon" }, { emoji: "👟", word: "chaussure" },
+        { emoji: "🧢", word: "casquette" }, { emoji: "🍌", word: "banane" }, { emoji: "🐝", word: "abeille" },
+        { emoji: "🥕", word: "carotte" }, { emoji: "🛏️", word: "lit" }, { emoji: "🚪", word: "porte" }
+      ],
+      sentences: [
+        { text: "Le chat boit du ___.", answer: "lait", options: ["lait", "livre", "lundi"] },
+        { text: "Papa coupe le ___ avec un couteau.", answer: "pain", options: ["pain", "bain", "main"] },
+        { text: "Je vais à l'___ tous les matins.", answer: "école", options: ["école", "étoile", "épaule"] },
+        { text: "L'oiseau vole dans le ___.", answer: "ciel", options: ["ciel", "sel", "miel"] },
+        { text: "Maman lit un ___ le soir.", answer: "livre", options: ["livre", "lièvre", "litre"] },
+        { text: "Le soleil ___ dans le ciel.", answer: "brille", options: ["brille", "brûle", "bille"] },
+        { text: "Il pleut, je mets mon ___.", answer: "manteau", options: ["manteau", "marteau", "château"] },
+        { text: "Le poisson nage dans l'___.", answer: "eau", options: ["eau", "air", "os"] },
+        { text: "La vache mange de l'___.", answer: "herbe", options: ["herbe", "arbre", "ombre"] },
+        { text: "Nous jouons dans le ___ après l'école.", answer: "jardin", options: ["jardin", "gardien", "jaune"] },
+        { text: "Le bébé dort dans son ___.", answer: "lit", options: ["lit", "lait", "lion"] },
+        { text: "J'écris avec un ___.", answer: "crayon", options: ["crayon", "rayon", "camion"] },
+        { text: "Il pleut, je prends mon ___.", answer: "parapluie", options: ["parapluie", "paravent", "papillon"] },
+        { text: "Le chien remue la ___.", answer: "queue", options: ["queue", "roue", "joue"] },
+        { text: "Les abeilles font du ___.", answer: "miel", options: ["miel", "ciel", "sel"] },
+        { text: "Je monte sur mon ___ pour aller au parc.", answer: "vélo", options: ["vélo", "veau", "vase"] },
+        { text: "La lune brille la ___.", answer: "nuit", options: ["nuit", "huit", "fruit"] },
+        { text: "Le facteur apporte une ___.", answer: "lettre", options: ["lettre", "fenêtre", "quatre"] },
+        { text: "Je me lave les ___ avant de manger.", answer: "mains", options: ["mains", "bains", "pains"] },
+        { text: "L'arbre perd ses ___ en automne.", answer: "feuilles", options: ["feuilles", "fleurs", "filles"] },
+        { text: "Le maître écrit au ___.", answer: "tableau", options: ["tableau", "bateau", "château"] },
+        { text: "Nous mangeons la soupe avec une ___.", answer: "cuillère", options: ["cuillère", "fourchette", "casserole"] },
+        { text: "Le train arrive à la ___.", answer: "gare", options: ["gare", "mare", "gomme"] },
+        { text: "En hiver, tout est blanc de ___.", answer: "neige", options: ["neige", "sable", "sucre"] }
+      ],
+      texts: [
+        { text: "Salish s'entraîne depuis trois mois pour son premier salto arrière. Ce matin, le tapis bleu l'attend au milieu de la salle. Elle prend son élan, saute très haut et retombe parfaitement sur ses deux pieds. Son entraîneur lève les bras et crie de joie. Salish sourit : elle sait qu'elle recommencera demain.", qs: [
+          { q: "Depuis combien de temps Salish s'entraîne-t-elle ?", answer: "Trois mois", wrong: ["Trois jours", "Trois ans"] },
+          { q: "Que fait l'entraîneur quand elle réussit ?", answer: "Il lève les bras et crie de joie", wrong: ["Il regarde son téléphone", "Il quitte la salle"] }
+        ] },
+        { text: "Tom entend un bruit au-dessus de sa chambre. Il monte l'escalier du grenier avec sa lampe de poche. Dans un vieux carton, il découvre une chatte et quatre petits chatons tout gris. Tom redescend vite chercher un bol de lait. Depuis ce jour, il monte au grenier chaque matin.", qs: [
+          { q: "Que découvre Tom dans le carton ?", answer: "Une chatte et quatre chatons", wrong: ["Un nid d'oiseaux", "De vieux jouets"] },
+          { q: "Que va-t-il chercher en bas ?", answer: "Un bol de lait", wrong: ["Une couverture", "Son appareil photo"] }
+        ] },
+        { text: "Mercredi, il a plu toute la journée. Léa ne pouvait pas aller au parc, alors elle a construit une cabane avec deux chaises et une grande couverture. À l'intérieur, elle a lu trois livres à son petit frère. Quand le soleil est revenu, ils ne voulaient plus sortir.", qs: [
+          { q: "Pourquoi Léa reste-t-elle à la maison ?", answer: "Parce qu'il pleut", wrong: ["Parce qu'elle est malade", "Parce que le parc est fermé"] },
+          { q: "Avec quoi construit-elle sa cabane ?", answer: "Deux chaises et une couverture", wrong: ["Des cartons et du ruban", "Des coussins et une table"] }
+        ] },
+        { text: "Chaque dimanche, Noé va à la boulangerie avec son grand-père. Ils partent tôt, quand la rue est encore vide. Le boulanger leur donne toujours un petit pain tout chaud à partager. Sur le chemin du retour, ils comptent les chats endormis sur les fenêtres. Dimanche dernier, ils en ont compté sept.", qs: [
+          { q: "Quand Noé et son grand-père partent-ils ?", answer: "Tôt, quand la rue est vide", wrong: ["À midi", "Le soir après le dîner"] },
+          { q: "Combien de chats ont-ils comptés dimanche dernier ?", answer: "Sept", wrong: ["Trois", "Douze"] }
+        ] },
+        { text: "Emma a trouvé un merle au pied du grand arbre. Son aile pendait sur le côté et il ne bougeait presque plus. Elle l'a porté chez le vétérinaire du village, qui lui a fait un tout petit bandage. Après deux semaines, Emma a ouvert la cage dans le jardin. Le merle a hésité, puis il est parti vers le ciel.", qs: [
+          { q: "Où Emma a-t-elle trouvé le merle ?", answer: "Au pied du grand arbre", wrong: ["Sur le toit de la maison", "Dans sa chambre"] },
+          { q: "Combien de temps le merle est-il resté ?", answer: "Deux semaines", wrong: ["Deux jours", "Deux mois"] }
+        ] },
+        { text: "Jordan a peur du vide, mais il veut quand même essayer le grand mur. Il attache son harnais, respire un grand coup et pose son pied sur la première prise. À la moitié, ses bras tremblent et il ferme les yeux une seconde. Il continue quand même, prise après prise. Tout en haut, il regarde en bas et il rit.", qs: [
+          { q: "De quoi Jordan a-t-il peur ?", answer: "Du vide", wrong: ["Des chiens", "De l'eau"] },
+          { q: "Que fait-il quand ses bras tremblent ?", answer: "Il continue quand même", wrong: ["Il redescend", "Il appelle à l'aide"] }
+        ] },
+        { text: "La classe de Mia est partie au musée des dinosaures. Devant le grand squelette, tout le monde s'est tu d'un coup. Le guide a expliqué que cet animal mangeait seulement des plantes. Mia a dessiné le squelette sur son carnet pendant vingt minutes. Dans le bus du retour, elle s'est endormie avec son carnet sur les genoux.", qs: [
+          { q: "Que mangeait l'animal du squelette ?", answer: "Seulement des plantes", wrong: ["De la viande", "Des poissons"] },
+          { q: "Que fait Mia dans le bus du retour ?", answer: "Elle s'endort", wrong: ["Elle chante", "Elle finit son dessin"] }
+        ] },
+        { text: "Au printemps, Mia a planté une graine dans un pot, puis elle l'a oubliée derrière le rideau. Pendant les vacances, personne ne l'a arrosée. En rentrant, Mia a trouvé une petite tige verte, toute penchée vers la fenêtre. Elle l'a mise dehors et lui a donné de l'eau. Aujourd'hui, c'est la plus grande plante de la maison.", qs: [
+          { q: "Pourquoi la tige était-elle penchée ?", answer: "Elle cherchait la lumière de la fenêtre", wrong: ["Elle était trop lourde", "Le vent l'avait poussée"] },
+          { q: "Qui a arrosé la graine pendant les vacances ?", answer: "Personne", wrong: ["Le voisin", "La maman de Mia"] }
+        ] },
+        { text: "Sur la plage, le vent était si fort que le cerf-volant de Paul montait presque jusqu'aux nuages. Paul tenait la bobine à deux mains. D'un coup, la ficelle a cassé net. Le cerf-volant rouge est parti au-dessus de la mer, de plus en plus petit. Le lendemain, un pêcheur l'a rapporté au village, tout mouillé.", qs: [
+          { q: "Pourquoi le cerf-volant s'envole-t-il ?", answer: "La ficelle casse", wrong: ["Paul le lâche", "Un oiseau l'emporte"] },
+          { q: "Qui rapporte le cerf-volant au village ?", answer: "Un pêcheur", wrong: ["Le maître nageur", "Le frère de Paul"] }
+        ] },
+        { text: "Le soir, grand-père raconte à Zoé l'histoire d'un capitaine qui cherchait une île sans nom. Il changeait la fin à chaque fois. Un soir, Zoé a décidé de raconter la suite elle-même. Grand-père l'a écoutée sans rien dire, les yeux fermés. À la fin, il a dit que sa version était bien meilleure.", qs: [
+          { q: "Que cherchait le capitaine ?", answer: "Une île sans nom", wrong: ["Un trésor volé", "Son équipage perdu"] },
+          { q: "Que pense grand-père de la version de Zoé ?", answer: "Qu'elle est bien meilleure", wrong: ["Qu'elle est trop longue", "Qu'elle est trop triste"] }
+        ] },
+        { text: "Il a neigé toute la nuit sans faire le moindre bruit. Au matin, la rue avait disparu sous une couverture blanche. Les enfants sont sortis avant même le petit-déjeuner. Ils ont roulé trois grosses boules et posé une écharpe rouge autour du bonhomme. À midi, le soleil est revenu et le bonhomme a commencé à pencher.", qs: [
+          { q: "Quand les enfants sortent-ils ?", answer: "Avant le petit-déjeuner", wrong: ["Après l'école", "Le soir"] },
+          { q: "Que se passe-t-il à midi ?", answer: "Le soleil revient et le bonhomme penche", wrong: ["Il neige encore plus", "Les enfants rentrent manger"] }
+        ] },
+        { text: "Louis a demandé à son père d'enlever les roulettes de son vélo. Les deux premières fois, il est tombé dans l'herbe et s'est un peu écorché le genou. Son père a proposé d'arrêter, mais Louis a voulu essayer encore. La troisième fois, il a roulé jusqu'au bout du chemin sans s'arrêter. Il n'entendait même plus son père crier derrière lui.", qs: [
+          { q: "Qui a enlevé les roulettes du vélo ?", answer: "Son père", wrong: ["Louis tout seul", "Son grand frère"] },
+          { q: "Que propose son père après les deux chutes ?", answer: "D'arrêter", wrong: ["De rentrer à la maison", "De remettre les roulettes"] }
+        ] }
+      ],
+      stories: [
+        { text: "Salish met sa tenue de gymnastique. Elle court sur le tapis et fait un salto arrière. Le public applaudit très fort.", qs: [
+          { q: "Que fait Salish sur le tapis ?", answer: "Un salto arrière", wrong: ["Une roulade avant", "Un plongeon"] },
+          { q: "Comment réagit le public ?", answer: "Il applaudit", wrong: ["Il s'en va", "Il reste silencieux"] }
+        ] },
+        { text: "Tom cherche son chat. Il regarde sous le lit et derrière la porte. Le chat dort dans le panier de linge.", qs: [
+          { q: "Qui Tom cherche-t-il ?", answer: "Son chat", wrong: ["Son chien", "Son frère"] },
+          { q: "Où dort le chat ?", answer: "Dans le panier de linge", wrong: ["Sous le lit", "Derrière la porte"] }
+        ] },
+        { text: "Il pleut sur le jardin. Léa met ses bottes jaunes et saute dans les flaques. Sa maman rit à la fenêtre.", qs: [
+          { q: "Quel temps fait-il ?", answer: "Il pleut", wrong: ["Il neige", "Il fait soleil"] },
+          { q: "De quelle couleur sont les bottes de Léa ?", answer: "Jaunes", wrong: ["Rouges", "Bleues"] }
+        ] },
+        { text: "Le boulanger se lève à quatre heures. Il pétrit la pâte et allume le four. À sept heures, le pain est chaud.", qs: [
+          { q: "À quelle heure se lève le boulanger ?", answer: "À quatre heures", wrong: ["À sept heures", "À midi"] },
+          { q: "Que prépare-t-il ?", answer: "Du pain", wrong: ["Des gâteaux", "De la soupe"] }
+        ] },
+        { text: "Un petit oiseau tombe du nid. Emma le pose doucement dans une boîte. Le lendemain, il s'envole vers l'arbre.", qs: [
+          { q: "Que fait Emma de l'oiseau ?", answer: "Elle le pose dans une boîte", wrong: ["Elle le garde dans sa poche", "Elle le donne au chat"] },
+          { q: "Que fait l'oiseau le lendemain ?", answer: "Il s'envole", wrong: ["Il dort encore", "Il chante dans la boîte"] }
+        ] },
+        { text: "Jordan grimpe sur le mur d'escalade. Ses mains glissent un peu, mais il ne lâche pas. En haut, il lève les bras.", qs: [
+          { q: "Où grimpe Jordan ?", answer: "Sur un mur d'escalade", wrong: ["Sur un arbre", "Sur un toit"] },
+          { q: "Que fait-il arrivé en haut ?", answer: "Il lève les bras", wrong: ["Il redescend vite", "Il crie de peur"] }
+        ] },
+        { text: "La classe part au musée en bus. Noé oublie son sac sur le siège. Le chauffeur le rapporte à l'école le soir.", qs: [
+          { q: "Où va la classe ?", answer: "Au musée", wrong: ["À la piscine", "À la ferme"] },
+          { q: "Qui rapporte le sac de Noé ?", answer: "Le chauffeur", wrong: ["La maîtresse", "Sa maman"] }
+        ] },
+        { text: "Mia plante une graine dans un pot. Elle l'arrose chaque matin. Après deux semaines, une petite feuille apparaît.", qs: [
+          { q: "Que plante Mia ?", answer: "Une graine", wrong: ["Un arbre", "Une fleur coupée"] },
+          { q: "Quand apparaît la petite feuille ?", answer: "Après deux semaines", wrong: ["Le jour même", "Après un an"] }
+        ] },
+        { text: "Le vent souffle fort sur la plage. Le cerf-volant de Paul monte très haut. La ficelle casse et il part dans les nuages.", qs: [
+          { q: "Où est Paul ?", answer: "Sur la plage", wrong: ["Dans la forêt", "À la maison"] },
+          { q: "Pourquoi le cerf-volant part-il ?", answer: "La ficelle casse", wrong: ["Paul le lâche exprès", "Un oiseau le prend"] }
+        ] },
+        { text: "Grand-père raconte une histoire de pirates. Zoé écoute les yeux grands ouverts. À la fin, elle demande la suite.", qs: [
+          { q: "De quoi parle l'histoire ?", answer: "De pirates", wrong: ["De dragons", "De chevaliers"] },
+          { q: "Que demande Zoé à la fin ?", answer: "La suite de l'histoire", wrong: ["Un verre d'eau", "D'aller dormir"] }
+        ] },
+        { text: "La neige tombe toute la nuit. Au matin, le jardin est tout blanc. Les enfants font un bonhomme avec une carotte pour le nez.", qs: [
+          { q: "Quel temps fait-il ?", answer: "Il neige", wrong: ["Il pleut", "Il y a du vent"] },
+          { q: "Que mettent les enfants comme nez ?", answer: "Une carotte", wrong: ["Une pomme", "Un bouton"] }
+        ] },
+        { text: "Louis apprend à faire du vélo sans roulettes. Il tombe deux fois dans l'herbe. La troisième fois, il roule tout seul.", qs: [
+          { q: "Qu'apprend Louis ?", answer: "À faire du vélo", wrong: ["À nager", "À patiner"] },
+          { q: "Combien de fois tombe-t-il ?", answer: "Deux fois", wrong: ["Trois fois", "Une fois"] }
+        ] }
+      ]
+    },
+    en: {
+      words: [
+        { emoji: "🐱", word: "cat" }, { emoji: "🐶", word: "dog" }, { emoji: "🏠", word: "house" },
+        { emoji: "🌳", word: "tree" }, { emoji: "🚗", word: "car" }, { emoji: "☀️", word: "sun" },
+        { emoji: "🌙", word: "moon" }, { emoji: "🌸", word: "flower" }, { emoji: "🐟", word: "fish" },
+        { emoji: "🍎", word: "apple" }, { emoji: "🍞", word: "bread" }, { emoji: "🥛", word: "milk" },
+        { emoji: "📕", word: "book" }, { emoji: "✏️", word: "pencil" }, { emoji: "🏫", word: "school" },
+        { emoji: "🚲", word: "bike" }, { emoji: "🐦", word: "bird" }, { emoji: "🐴", word: "horse" },
+        { emoji: "🐄", word: "cow" }, { emoji: "🦋", word: "butterfly" }, { emoji: "🌧️", word: "rain" },
+        { emoji: "⭐", word: "star" }, { emoji: "🎈", word: "balloon" }, { emoji: "👟", word: "shoe" },
+        { emoji: "🧢", word: "cap" }, { emoji: "🍌", word: "banana" }, { emoji: "🐝", word: "bee" },
+        { emoji: "🥕", word: "carrot" }, { emoji: "🛏️", word: "bed" }, { emoji: "🚪", word: "door" }
+      ],
+      sentences: [
+        { text: "The cat drinks its ___.", answer: "milk", options: ["milk", "silk", "mail"] },
+        { text: "I read a ___ before bed.", answer: "book", options: ["book", "boot", "bank"] },
+        { text: "The sun ___ in the sky.", answer: "shines", options: ["shines", "swims", "sleeps"] },
+        { text: "Birds build a ___ in the tree.", answer: "nest", options: ["nest", "best", "rest"] },
+        { text: "I write with a ___.", answer: "pencil", options: ["pencil", "pedal", "petal"] },
+        { text: "The fish swims in the ___.", answer: "water", options: ["water", "winter", "waiter"] },
+        { text: "It is raining, so I take my ___.", answer: "umbrella", options: ["umbrella", "envelope", "elephant"] },
+        { text: "Bees make ___.", answer: "honey", options: ["honey", "money", "monkey"] },
+        { text: "I ride my ___ to the park.", answer: "bike", options: ["bike", "bake", "cake"] },
+        { text: "The baby sleeps in a ___.", answer: "bed", options: ["bed", "bad", "bag"] },
+        { text: "We eat soup with a ___.", answer: "spoon", options: ["spoon", "fork", "plate"] },
+        { text: "The train stops at the ___.", answer: "station", options: ["station", "stadium", "statue"] },
+        { text: "In winter everything is white with ___.", answer: "snow", options: ["snow", "sand", "sugar"] },
+        { text: "The cow eats ___ in the field.", answer: "grass", options: ["grass", "glass", "grape"] },
+        { text: "I wash my ___ before dinner.", answer: "hands", options: ["hands", "bands", "sands"] },
+        { text: "The tree loses its ___ in autumn.", answer: "leaves", options: ["leaves", "flowers", "feathers"] },
+        { text: "The teacher writes on the ___.", answer: "board", options: ["board", "bread", "beard"] },
+        { text: "The moon shines at ___.", answer: "night", options: ["night", "light", "eight"] },
+        { text: "The dog wags its ___.", answer: "tail", options: ["tail", "tale", "nail"] },
+        { text: "I put on my ___ when it is cold.", answer: "coat", options: ["coat", "goat", "boat"] },
+        { text: "The postman brings a ___.", answer: "letter", options: ["letter", "ladder", "litter"] },
+        { text: "We play in the ___ after school.", answer: "garden", options: ["garden", "guardian", "golden"] },
+        { text: "Dad cuts the ___ with a knife.", answer: "bread", options: ["bread", "beard", "board"] },
+        { text: "A butterfly has beautiful ___.", answer: "wings", options: ["wings", "rings", "kings"] }
+      ],
+      texts: [
+        { text: "Salish has been training for three months for her first back flip. This morning the blue mat is waiting in the middle of the gym. She takes a run-up, jumps very high and lands perfectly on both feet. Her coach throws both arms up and shouts with joy. Salish smiles: she knows she will do it all again tomorrow.", qs: [
+          { q: "How long has Salish been training?", answer: "Three months", wrong: ["Three days", "Three years"] },
+          { q: "What does the coach do when she lands it?", answer: "Throws both arms up and shouts", wrong: ["Looks at a phone", "Leaves the gym"] }
+        ] },
+        { text: "Tom hears a noise above his bedroom. He climbs the attic stairs with his torch. In an old cardboard box he finds a cat and four tiny grey kittens. Tom runs straight back down to fetch a bowl of milk. Since that day he climbs up to the attic every single morning.", qs: [
+          { q: "What does Tom find in the box?", answer: "A cat and four kittens", wrong: ["A bird's nest", "Old toys"] },
+          { q: "What does he go back down to fetch?", answer: "A bowl of milk", wrong: ["A blanket", "His camera"] }
+        ] },
+        { text: "On Wednesday it rained all day long. Lea could not go to the park, so she built a den with two chairs and a big blanket. Inside, she read three books to her little brother. When the sun came back, neither of them wanted to come out.", qs: [
+          { q: "Why does Lea stay at home?", answer: "Because it is raining", wrong: ["Because she is ill", "Because the park is closed"] },
+          { q: "What does she build her den with?", answer: "Two chairs and a blanket", wrong: ["Boxes and tape", "Cushions and a table"] }
+        ] },
+        { text: "Every Sunday Noah goes to the bakery with his grandad. They leave early, while the street is still empty. The baker always gives them one warm roll to share. On the way home they count the cats asleep in the windows. Last Sunday they counted seven.", qs: [
+          { q: "When do Noah and his grandad leave?", answer: "Early, while the street is empty", wrong: ["At midday", "In the evening after dinner"] },
+          { q: "How many cats did they count last Sunday?", answer: "Seven", wrong: ["Three", "Twelve"] }
+        ] },
+        { text: "Emma found a blackbird at the foot of the big tree. Its wing hung down at its side and it hardly moved at all. She carried it to the village vet, who put on a very small bandage. After two weeks Emma opened the cage in the garden. The blackbird hesitated, then it lifted off into the sky.", qs: [
+          { q: "Where did Emma find the blackbird?", answer: "At the foot of the big tree", wrong: ["On the roof of the house", "In her bedroom"] },
+          { q: "How long did the blackbird stay?", answer: "Two weeks", wrong: ["Two days", "Two months"] }
+        ] },
+        { text: "Jordan is afraid of heights, but he still wants to try the big wall. He clips on his harness, takes a deep breath and puts one foot on the first hold. Halfway up his arms shake and he shuts his eyes for a second. He keeps going anyway, hold after hold. Right at the top he looks down and laughs.", qs: [
+          { q: "What is Jordan afraid of?", answer: "Heights", wrong: ["Dogs", "Water"] },
+          { q: "What does he do when his arms shake?", answer: "He keeps going anyway", wrong: ["He climbs back down", "He calls for help"] }
+        ] },
+        { text: "Mia's class went to the dinosaur museum. In front of the huge skeleton everybody went quiet at once. The guide explained that this animal ate only plants. Mia drew the skeleton in her notebook for twenty minutes. On the bus home she fell asleep with the notebook on her lap.", qs: [
+          { q: "What did the animal of the skeleton eat?", answer: "Only plants", wrong: ["Meat", "Fish"] },
+          { q: "What does Mia do on the bus home?", answer: "She falls asleep", wrong: ["She sings", "She finishes her drawing"] }
+        ] },
+        { text: "In spring Mia planted a seed in a pot, then forgot it behind the curtain. Nobody watered it during the holidays. When she came back, Mia found a thin green stem leaning right over towards the window. She put it outside and gave it water. Today it is the tallest plant in the house.", qs: [
+          { q: "Why was the stem leaning over?", answer: "It was reaching for the light from the window", wrong: ["It was too heavy", "The wind had pushed it"] },
+          { q: "Who watered the seed during the holidays?", answer: "Nobody", wrong: ["The neighbour", "Mia's mum"] }
+        ] },
+        { text: "On the beach the wind was so strong that Paul's kite climbed almost up to the clouds. Paul held the reel with both hands. All at once the string snapped clean through. The red kite sailed out over the sea, smaller and smaller. The next day a fisherman brought it back to the village, soaking wet.", qs: [
+          { q: "Why does the kite fly away?", answer: "The string snaps", wrong: ["Paul lets go", "A bird carries it off"] },
+          { q: "Who brings the kite back to the village?", answer: "A fisherman", wrong: ["The lifeguard", "Paul's brother"] }
+        ] },
+        { text: "In the evening grandad tells Zoe the story of a captain looking for an island with no name. He changes the ending every single time. One evening Zoe decided to tell the rest of it herself. Grandad listened without saying a word, his eyes closed. At the end he said her version was much better.", qs: [
+          { q: "What was the captain looking for?", answer: "An island with no name", wrong: ["A stolen treasure", "His lost crew"] },
+          { q: "What does grandad think of Zoe's version?", answer: "That it is much better", wrong: ["That it is too long", "That it is too sad"] }
+        ] },
+        { text: "It snowed all night without making the slightest sound. By morning the street had vanished under a white blanket. The children went out before breakfast. They rolled three big balls and tied a red scarf round the snowman. By midday the sun was back and the snowman began to lean.", qs: [
+          { q: "When do the children go out?", answer: "Before breakfast", wrong: ["After school", "In the evening"] },
+          { q: "What happens by midday?", answer: "The sun comes back and the snowman leans", wrong: ["It snows even more", "The children go in to eat"] }
+        ] },
+        { text: "Louis asked his dad to take the training wheels off his bike. The first two times he fell in the grass and scraped his knee a little. His dad offered to stop, but Louis wanted one more try. The third time he rode all the way to the end of the path without stopping. He could not even hear his dad shouting behind him any more.", qs: [
+          { q: "Who took the training wheels off the bike?", answer: "His dad", wrong: ["Louis by himself", "His big brother"] },
+          { q: "What does his dad offer after the two falls?", answer: "To stop", wrong: ["To go home", "To put the wheels back on"] }
+        ] }
+      ],
+      stories: [
+        { text: "Salish puts on her gym clothes. She runs on the mat and does a back flip. The crowd claps very loudly.", qs: [
+          { q: "What does Salish do on the mat?", answer: "A back flip", wrong: ["A forward roll", "A dive"] },
+          { q: "How does the crowd react?", answer: "It claps", wrong: ["It leaves", "It stays silent"] }
+        ] },
+        { text: "Tom is looking for his cat. He looks under the bed and behind the door. The cat is asleep in the laundry basket.", qs: [
+          { q: "What is Tom looking for?", answer: "His cat", wrong: ["His dog", "His brother"] },
+          { q: "Where is the cat sleeping?", answer: "In the laundry basket", wrong: ["Under the bed", "Behind the door"] }
+        ] },
+        { text: "It is raining on the garden. Lea puts on her yellow boots and jumps in the puddles. Her mum laughs at the window.", qs: [
+          { q: "What is the weather like?", answer: "It is raining", wrong: ["It is snowing", "It is sunny"] },
+          { q: "What colour are Lea's boots?", answer: "Yellow", wrong: ["Red", "Blue"] }
+        ] },
+        { text: "The baker gets up at four o'clock. He kneads the dough and lights the oven. At seven, the bread is warm.", qs: [
+          { q: "When does the baker get up?", answer: "At four o'clock", wrong: ["At seven o'clock", "At noon"] },
+          { q: "What does he make?", answer: "Bread", wrong: ["Cakes", "Soup"] }
+        ] },
+        { text: "A little bird falls out of the nest. Emma gently puts it in a box. The next day it flies back to the tree.", qs: [
+          { q: "What does Emma do with the bird?", answer: "She puts it in a box", wrong: ["She keeps it in her pocket", "She gives it to the cat"] },
+          { q: "What does the bird do the next day?", answer: "It flies away", wrong: ["It sleeps again", "It sings in the box"] }
+        ] },
+        { text: "Jordan climbs the climbing wall. His hands slip a little, but he does not let go. At the top he raises his arms.", qs: [
+          { q: "What does Jordan climb?", answer: "A climbing wall", wrong: ["A tree", "A roof"] },
+          { q: "What does he do at the top?", answer: "He raises his arms", wrong: ["He climbs down fast", "He shouts in fear"] }
+        ] },
+        { text: "The class goes to the museum by bus. Noah forgets his bag on the seat. The driver brings it back to school in the evening.", qs: [
+          { q: "Where does the class go?", answer: "To the museum", wrong: ["To the swimming pool", "To the farm"] },
+          { q: "Who brings Noah's bag back?", answer: "The driver", wrong: ["The teacher", "His mum"] }
+        ] },
+        { text: "Mia plants a seed in a pot. She waters it every morning. After two weeks a small leaf appears.", qs: [
+          { q: "What does Mia plant?", answer: "A seed", wrong: ["A tree", "A cut flower"] },
+          { q: "When does the small leaf appear?", answer: "After two weeks", wrong: ["The same day", "After a year"] }
+        ] },
+        { text: "The wind blows hard on the beach. Paul's kite goes very high. The string breaks and it flies into the clouds.", qs: [
+          { q: "Where is Paul?", answer: "On the beach", wrong: ["In the forest", "At home"] },
+          { q: "Why does the kite fly away?", answer: "The string breaks", wrong: ["Paul lets go on purpose", "A bird takes it"] }
+        ] },
+        { text: "Grandpa tells a story about pirates. Zoe listens with wide open eyes. At the end she asks for more.", qs: [
+          { q: "What is the story about?", answer: "Pirates", wrong: ["Dragons", "Knights"] },
+          { q: "What does Zoe ask for at the end?", answer: "More of the story", wrong: ["A glass of water", "To go to sleep"] }
+        ] },
+        { text: "Snow falls all night long. In the morning the garden is all white. The children build a snowman with a carrot for a nose.", qs: [
+          { q: "What is the weather like?", answer: "It is snowing", wrong: ["It is raining", "It is windy"] },
+          { q: "What do the children use for the nose?", answer: "A carrot", wrong: ["An apple", "A button"] }
+        ] },
+        { text: "Louis is learning to ride a bike without training wheels. He falls twice in the grass. The third time he rides all by himself.", qs: [
+          { q: "What is Louis learning?", answer: "To ride a bike", wrong: ["To swim", "To skate"] },
+          { q: "How many times does he fall?", answer: "Twice", wrong: ["Three times", "Once"] }
+        ] }
+      ]
+    },
+    nl: {
+      words: [
+        { emoji: "🐱", word: "kat" }, { emoji: "🐶", word: "hond" }, { emoji: "🏠", word: "huis" },
+        { emoji: "🌳", word: "boom" }, { emoji: "🚗", word: "auto" }, { emoji: "☀️", word: "zon" },
+        { emoji: "🌙", word: "maan" }, { emoji: "🌸", word: "bloem" }, { emoji: "🐟", word: "vis" },
+        { emoji: "🍎", word: "appel" }, { emoji: "🍞", word: "brood" }, { emoji: "🥛", word: "melk" },
+        { emoji: "📕", word: "boek" }, { emoji: "✏️", word: "potlood" }, { emoji: "🏫", word: "school" },
+        { emoji: "🚲", word: "fiets" }, { emoji: "🐦", word: "vogel" }, { emoji: "🐴", word: "paard" },
+        { emoji: "🐄", word: "koe" }, { emoji: "🦋", word: "vlinder" }, { emoji: "🌧️", word: "regen" },
+        { emoji: "⭐", word: "ster" }, { emoji: "🎈", word: "ballon" }, { emoji: "👟", word: "schoen" },
+        { emoji: "🧢", word: "pet" }, { emoji: "🍌", word: "banaan" }, { emoji: "🐝", word: "bij" },
+        { emoji: "🥕", word: "wortel" }, { emoji: "🛏️", word: "bed" }, { emoji: "🚪", word: "deur" }
+      ],
+      sentences: [
+        { text: "De kat drinkt ___.", answer: "melk", options: ["melk", "meel", "mest"] },
+        { text: "Ik lees een ___ voor het slapen.", answer: "boek", options: ["boek", "broek", "boer"] },
+        { text: "De zon ___ aan de hemel.", answer: "schijnt", options: ["schijnt", "zwemt", "slaapt"] },
+        { text: "De vogel bouwt een ___ in de boom.", answer: "nest", options: ["nest", "vest", "mest"] },
+        { text: "Ik schrijf met een ___.", answer: "potlood", options: ["potlood", "pannenkoek", "paraplu"] },
+        { text: "De vis zwemt in het ___.", answer: "water", options: ["water", "winter", "wonder"] },
+        { text: "Het regent, ik neem mijn ___ mee.", answer: "paraplu", options: ["paraplu", "parasol", "papegaai"] },
+        { text: "Bijen maken ___.", answer: "honing", options: ["honing", "koning", "woning"] },
+        { text: "Ik rijd met mijn ___ naar het park.", answer: "fiets", options: ["fiets", "feest", "fles"] },
+        { text: "De baby slaapt in een ___.", answer: "bed", options: ["bed", "bad", "bal"] },
+        { text: "We eten soep met een ___.", answer: "lepel", options: ["lepel", "vork", "bord"] },
+        { text: "De trein stopt op het ___.", answer: "station", options: ["station", "stadion", "standbeeld"] },
+        { text: "In de winter is alles wit van de ___.", answer: "sneeuw", options: ["sneeuw", "zand", "suiker"] },
+        { text: "De koe eet ___ in de wei.", answer: "gras", options: ["gras", "glas", "graf"] },
+        { text: "Ik was mijn ___ voor het eten.", answer: "handen", options: ["handen", "banden", "randen"] },
+        { text: "De boom verliest zijn ___ in de herfst.", answer: "bladeren", options: ["bladeren", "bloemen", "veren"] },
+        { text: "De juf schrijft op het ___.", answer: "bord", options: ["bord", "brood", "boord"] },
+        { text: "De maan schijnt in de ___.", answer: "nacht", options: ["nacht", "jacht", "acht"] },
+        { text: "De hond kwispelt met zijn ___.", answer: "staart", options: ["staart", "kaart", "paard"] },
+        { text: "Ik trek mijn ___ aan als het koud is.", answer: "jas", options: ["jas", "jus", "das"] },
+        { text: "De postbode brengt een ___.", answer: "brief", options: ["brief", "brand", "bril"] },
+        { text: "We spelen in de ___ na school.", answer: "tuin", options: ["tuin", "trein", "tien"] },
+        { text: "Papa snijdt het ___ met een mes.", answer: "brood", options: ["brood", "bord", "boord"] },
+        { text: "Een vlinder heeft mooie ___.", answer: "vleugels", options: ["vleugels", "veters", "vlekken"] }
+      ],
+      texts: [
+        { text: "Salish traint al drie maanden voor haar eerste salto achterover. Vanmorgen ligt de blauwe mat midden in de zaal te wachten. Ze neemt een aanloop, springt heel hoog en landt precies op haar twee voeten. Haar trainer steekt beide armen omhoog en juicht. Salish lacht: ze weet dat ze het morgen weer gaat doen.", qs: [
+          { q: "Hoe lang traint Salish al?", answer: "Drie maanden", wrong: ["Drie dagen", "Drie jaar"] },
+          { q: "Wat doet de trainer als het lukt?", answer: "Beide armen omhoog steken en juichen", wrong: ["Naar een telefoon kijken", "De zaal verlaten"] }
+        ] },
+        { text: "Tom hoort een geluid boven zijn slaapkamer. Hij klimt met zijn zaklamp de zoldertrap op. In een oude kartonnen doos vindt hij een poes en vier kleine grijze katjes. Tom rent meteen naar beneden om een schaaltje melk te halen. Sinds die dag klimt hij elke ochtend naar zolder.", qs: [
+          { q: "Wat vindt Tom in de doos?", answer: "Een poes en vier katjes", wrong: ["Een vogelnest", "Oud speelgoed"] },
+          { q: "Wat gaat hij beneden halen?", answer: "Een schaaltje melk", wrong: ["Een deken", "Zijn fototoestel"] }
+        ] },
+        { text: "Woensdag regende het de hele dag. Lea kon niet naar het park, dus bouwde ze een hut van twee stoelen en een grote deken. Binnen las ze drie boeken voor aan haar kleine broer. Toen de zon terugkwam, wilde niemand meer naar buiten.", qs: [
+          { q: "Waarom blijft Lea thuis?", answer: "Omdat het regent", wrong: ["Omdat ze ziek is", "Omdat het park dicht is"] },
+          { q: "Waarvan bouwt ze haar hut?", answer: "Twee stoelen en een deken", wrong: ["Dozen en plakband", "Kussens en een tafel"] }
+        ] },
+        { text: "Elke zondag gaat Noah met zijn opa naar de bakker. Ze vertrekken vroeg, als de straat nog leeg is. De bakker geeft hun altijd één warm broodje om te delen. Op de terugweg tellen ze de katten die in de ramen slapen. Vorige zondag telden ze er zeven.", qs: [
+          { q: "Wanneer vertrekken Noah en zijn opa?", answer: "Vroeg, als de straat leeg is", wrong: ["Om twaalf uur", "'s Avonds na het eten"] },
+          { q: "Hoeveel katten telden ze vorige zondag?", answer: "Zeven", wrong: ["Drie", "Twaalf"] }
+        ] },
+        { text: "Emma vond een merel aan de voet van de grote boom. Zijn vleugel hing opzij en hij bewoog bijna niet meer. Ze bracht hem naar de dierenarts van het dorp, die er een heel klein verbandje om deed. Na twee weken opende Emma de kooi in de tuin. De merel twijfelde even en vloog toen de lucht in.", qs: [
+          { q: "Waar vond Emma de merel?", answer: "Aan de voet van de grote boom", wrong: ["Op het dak van het huis", "In haar slaapkamer"] },
+          { q: "Hoe lang bleef de merel?", answer: "Twee weken", wrong: ["Twee dagen", "Twee maanden"] }
+        ] },
+        { text: "Jordan is bang van hoogte, maar hij wil de grote muur toch proberen. Hij klikt zijn gordel vast, haalt diep adem en zet zijn voet op de eerste greep. Halverwege trillen zijn armen en doet hij even zijn ogen dicht. Toch klimt hij verder, greep na greep. Helemaal bovenaan kijkt hij naar beneden en lacht.", qs: [
+          { q: "Waar is Jordan bang van?", answer: "Van hoogte", wrong: ["Van honden", "Van water"] },
+          { q: "Wat doet hij als zijn armen trillen?", answer: "Hij klimt toch verder", wrong: ["Hij klimt naar beneden", "Hij roept om hulp"] }
+        ] },
+        { text: "De klas van Mia ging naar het dinosaurusmuseum. Voor het enorme skelet werd iedereen ineens stil. De gids legde uit dat dit dier alleen planten at. Mia tekende het skelet twintig minuten lang in haar schriftje. In de bus naar huis viel ze in slaap met het schriftje op haar schoot.", qs: [
+          { q: "Wat at het dier van het skelet?", answer: "Alleen planten", wrong: ["Vlees", "Vis"] },
+          { q: "Wat doet Mia in de bus naar huis?", answer: "Ze valt in slaap", wrong: ["Ze zingt", "Ze maakt haar tekening af"] }
+        ] },
+        { text: "In de lente plantte Mia een zaadje in een pot en vergat het achter het gordijn. Tijdens de vakantie gaf niemand het water. Toen ze terugkwam, vond Mia een dun groen stengeltje dat helemaal naar het raam toe boog. Ze zette het buiten en gaf het water. Vandaag is het de grootste plant van het huis.", qs: [
+          { q: "Waarom boog het stengeltje?", answer: "Het zocht het licht van het raam", wrong: ["Het was te zwaar", "De wind had het geduwd"] },
+          { q: "Wie gaf het zaadje water tijdens de vakantie?", answer: "Niemand", wrong: ["De buurman", "De mama van Mia"] }
+        ] },
+        { text: "Op het strand waaide het zo hard dat de vlieger van Paul bijna tot in de wolken klom. Paul hield de haspel met twee handen vast. Ineens knapte het touwtje helemaal door. De rode vlieger zeilde over de zee, kleiner en kleiner. De volgende dag bracht een visser hem kletsnat terug naar het dorp.", qs: [
+          { q: "Waarom vliegt de vlieger weg?", answer: "Het touwtje knapt", wrong: ["Paul laat los", "Een vogel neemt hem mee"] },
+          { q: "Wie brengt de vlieger terug naar het dorp?", answer: "Een visser", wrong: ["De redder", "De broer van Paul"] }
+        ] },
+        { text: "'s Avonds vertelt opa aan Zoë het verhaal van een kapitein die een eiland zonder naam zocht. Hij veranderde het einde elke keer. Op een avond besloot Zoë het vervolg zelf te vertellen. Opa luisterde zonder iets te zeggen, met zijn ogen dicht. Aan het einde zei hij dat haar versie veel beter was.", qs: [
+          { q: "Wat zocht de kapitein?", answer: "Een eiland zonder naam", wrong: ["Een gestolen schat", "Zijn verloren bemanning"] },
+          { q: "Wat vindt opa van de versie van Zoë?", answer: "Dat die veel beter is", wrong: ["Dat die te lang is", "Dat die te droevig is"] }
+        ] },
+        { text: "Het sneeuwde de hele nacht zonder ook maar één geluid te maken. 's Morgens was de straat verdwenen onder een witte deken. De kinderen gingen naar buiten nog voor het ontbijt. Ze rolden drie grote ballen en knoopten een rode sjaal om de sneeuwpop. Rond de middag kwam de zon terug en begon de sneeuwpop te hellen.", qs: [
+          { q: "Wanneer gaan de kinderen naar buiten?", answer: "Voor het ontbijt", wrong: ["Na school", "'s Avonds"] },
+          { q: "Wat gebeurt er rond de middag?", answer: "De zon komt terug en de sneeuwpop helt", wrong: ["Het sneeuwt nog harder", "De kinderen gaan binnen eten"] }
+        ] },
+        { text: "Louis vroeg aan zijn papa om de zijwieltjes van zijn fiets te halen. De eerste twee keer viel hij in het gras en schaafde hij zijn knie een beetje. Zijn papa stelde voor om te stoppen, maar Louis wilde nog één keer proberen. De derde keer fietste hij tot het einde van het pad zonder te stoppen. Hij hoorde zijn papa niet eens meer roepen achter hem.", qs: [
+          { q: "Wie haalde de zijwieltjes van de fiets?", answer: "Zijn papa", wrong: ["Louis helemaal alleen", "Zijn grote broer"] },
+          { q: "Wat stelt zijn papa voor na de twee valpartijen?", answer: "Om te stoppen", wrong: ["Om naar huis te gaan", "Om de wieltjes terug te zetten"] }
+        ] }
+      ],
+      stories: [
+        { text: "Salish trekt haar turnpakje aan. Ze rent over de mat en maakt een salto achterover. Het publiek klapt heel hard.", qs: [
+          { q: "Wat doet Salish op de mat?", answer: "Een salto achterover", wrong: ["Een koprol", "Een duik"] },
+          { q: "Hoe reageert het publiek?", answer: "Het klapt", wrong: ["Het gaat weg", "Het blijft stil"] }
+        ] },
+        { text: "Tom zoekt zijn kat. Hij kijkt onder het bed en achter de deur. De kat slaapt in de wasmand.", qs: [
+          { q: "Wat zoekt Tom?", answer: "Zijn kat", wrong: ["Zijn hond", "Zijn broer"] },
+          { q: "Waar slaapt de kat?", answer: "In de wasmand", wrong: ["Onder het bed", "Achter de deur"] }
+        ] },
+        { text: "Het regent op de tuin. Lea trekt haar gele laarzen aan en springt in de plassen. Haar mama lacht voor het raam.", qs: [
+          { q: "Wat voor weer is het?", answer: "Het regent", wrong: ["Het sneeuwt", "De zon schijnt"] },
+          { q: "Welke kleur hebben de laarzen van Lea?", answer: "Geel", wrong: ["Rood", "Blauw"] }
+        ] },
+        { text: "De bakker staat om vier uur op. Hij kneedt het deeg en steekt de oven aan. Om zeven uur is het brood warm.", qs: [
+          { q: "Hoe laat staat de bakker op?", answer: "Om vier uur", wrong: ["Om zeven uur", "Om twaalf uur"] },
+          { q: "Wat maakt hij?", answer: "Brood", wrong: ["Taarten", "Soep"] }
+        ] },
+        { text: "Een klein vogeltje valt uit het nest. Emma legt het voorzichtig in een doos. De volgende dag vliegt het naar de boom.", qs: [
+          { q: "Wat doet Emma met het vogeltje?", answer: "Ze legt het in een doos", wrong: ["Ze houdt het in haar zak", "Ze geeft het aan de kat"] },
+          { q: "Wat doet het vogeltje de volgende dag?", answer: "Het vliegt weg", wrong: ["Het slaapt nog", "Het zingt in de doos"] }
+        ] },
+        { text: "Jordan klimt op de klimmuur. Zijn handen glijden een beetje, maar hij laat niet los. Bovenaan steekt hij zijn armen omhoog.", qs: [
+          { q: "Waar klimt Jordan op?", answer: "Op een klimmuur", wrong: ["Op een boom", "Op een dak"] },
+          { q: "Wat doet hij bovenaan?", answer: "Hij steekt zijn armen omhoog", wrong: ["Hij klimt snel naar beneden", "Hij roept van angst"] }
+        ] },
+        { text: "De klas gaat met de bus naar het museum. Noah vergeet zijn tas op de stoel. De chauffeur brengt hem 's avonds naar school.", qs: [
+          { q: "Waar gaat de klas naartoe?", answer: "Naar het museum", wrong: ["Naar het zwembad", "Naar de boerderij"] },
+          { q: "Wie brengt de tas van Noah terug?", answer: "De chauffeur", wrong: ["De juf", "Zijn mama"] }
+        ] },
+        { text: "Mia plant een zaadje in een pot. Ze geeft het elke ochtend water. Na twee weken komt er een klein blaadje.", qs: [
+          { q: "Wat plant Mia?", answer: "Een zaadje", wrong: ["Een boom", "Een geplukte bloem"] },
+          { q: "Wanneer komt het kleine blaadje?", answer: "Na twee weken", wrong: ["Dezelfde dag", "Na een jaar"] }
+        ] },
+        { text: "De wind waait hard op het strand. De vlieger van Paul gaat heel hoog. Het touwtje breekt en hij vliegt de wolken in.", qs: [
+          { q: "Waar is Paul?", answer: "Op het strand", wrong: ["In het bos", "Thuis"] },
+          { q: "Waarom vliegt de vlieger weg?", answer: "Het touwtje breekt", wrong: ["Paul laat expres los", "Een vogel pakt hem"] }
+        ] },
+        { text: "Opa vertelt een verhaal over piraten. Zoë luistert met grote ogen. Aan het einde vraagt ze om meer.", qs: [
+          { q: "Waarover gaat het verhaal?", answer: "Over piraten", wrong: ["Over draken", "Over ridders"] },
+          { q: "Wat vraagt Zoë aan het einde?", answer: "Meer van het verhaal", wrong: ["Een glas water", "Om te gaan slapen"] }
+        ] },
+        { text: "Het sneeuwt de hele nacht. 's Morgens is de tuin helemaal wit. De kinderen maken een sneeuwpop met een wortel als neus.", qs: [
+          { q: "Wat voor weer is het?", answer: "Het sneeuwt", wrong: ["Het regent", "Het waait"] },
+          { q: "Wat gebruiken de kinderen als neus?", answer: "Een wortel", wrong: ["Een appel", "Een knoop"] }
+        ] },
+        { text: "Louis leert fietsen zonder zijwieltjes. Hij valt twee keer in het gras. De derde keer fietst hij helemaal alleen.", qs: [
+          { q: "Wat leert Louis?", answer: "Fietsen", wrong: ["Zwemmen", "Schaatsen"] },
+          { q: "Hoe vaak valt hij?", answer: "Twee keer", wrong: ["Drie keer", "Eén keer"] }
+        ] }
+      ]
+    }
+  };
+
+  function loadMusicVolume() {
+    try {
+      var v = parseInt(localStorage.getItem('calcul-mental-music-volume'), 10);
+      return (isFinite(v) && v >= 0 && v <= 100) ? v : 50;
+    } catch (e) { return 50; }
+  }
+
+  function loadSavedLang() {
+    try {
+      var v = localStorage.getItem('calcul-mental-lang');
+      return LANG[v] ? v : 'fr';
+    } catch (e) { return 'fr'; }
+  }
+
+  var state = {
+    lang: loadSavedLang(),
+    musicVolume: loadMusicVolume(),
+    expert: loadExpertPref(),
+    subject: loadSubjectPref(),
+    total: QUESTIONS.normal,
+    level: 'ten',
+    pool: [],
+    choiceIndex: -1,
+    readerMode: loadReaderMode(),
+    readSpeed: loadReaderSpeed(),
+    index: 0,
+    correctCount: 0,
+    streak: 0,
+    sheetNumber: 1,
+    current: null,
+    results: [],
+    locked: false,
+    answer: ''
+  };
+
+  function L() { return LANG[state.lang]; }
+
+  var els = {
+    sheetLabel: document.getElementById('sheetLabel'),
+    gradeBox: document.getElementById('gradeBox'),
+    dots: document.getElementById('dots'),
+    equation: document.getElementById('equation'),
+    keypad: document.getElementById('keypad'),
+    checkBtn: document.getElementById('checkBtn'),
+    nextBtn: document.getElementById('nextBtn'),
+    feedback: document.getElementById('feedback'),
+    problemZone: document.getElementById('problemZone'),
+    resultsZone: document.getElementById('resultsZone'),
+    resultsInner: document.getElementById('resultsInner'),
+    newSheetBtn: document.getElementById('newSheetBtn'),
+    streakWrap: document.getElementById('streakWrap'),
+    bestWrap: document.getElementById('bestWrap'),
+    catPop: document.getElementById('catPop'),
+    catBubbleText: document.getElementById('catBubbleText'),
+    popToast: document.getElementById('popToast'),
+    sheetEl: document.getElementById('sheet'),
+    resetBtn: document.getElementById('resetBtn'),
+    resetModal: document.getElementById('resetModal'),
+    resetTitle: document.getElementById('resetTitle'),
+    resetBody: document.getElementById('resetBody'),
+    resetCancel: document.getElementById('resetCancel'),
+    resetConfirm: document.getElementById('resetConfirm'),
+    expertBtn: document.getElementById('expertBtn'),
+    expertLabel: document.getElementById('expertLabel'),
+    musicBtn: document.getElementById('musicBtn'),
+    musicLabel: document.getElementById('musicLabel'),
+    musicVolume: document.getElementById('musicVolume'),
+    titleText: document.getElementById('titleText'),
+    taglineText: document.getElementById('taglineText'),
+    tabsGroup: document.getElementById('tabsGroup'),
+    langBtns: Array.prototype.slice.call(document.querySelectorAll('.lang-btn')),
+    authBox: document.getElementById('authBox'),
+    signInBtn: document.getElementById('signInBtn'),
+    signUpBtn: document.getElementById('signUpBtn'),
+    userButton: document.getElementById('userButton'),
+    subjectSwitch: document.getElementById('subjectSwitch'),
+    subjectBtns: Array.prototype.slice.call(document.querySelectorAll('.subject-btn')),
+    mathZone: document.getElementById('mathZone'),
+    readingZone: document.getElementById('readingZone'),
+    readPrompt: document.getElementById('readPrompt'),
+    readPicture: document.getElementById('readPicture'),
+    readStory: document.getElementById('readStory'),
+    readQuestion: document.getElementById('readQuestion'),
+    choices: document.getElementById('choices'),
+    readerBar: document.getElementById('readerBar'),
+    readerModes: document.getElementById('readerModes'),
+    readerModeBtns: Array.prototype.slice.call(document.querySelectorAll('.reader-mode')),
+    readSpeed: document.getElementById('readSpeed'),
+    speedLabel: document.getElementById('speedLabel'),
+    speedValue: document.getElementById('speedValue'),
+    speedUnit: document.getElementById('speedUnit'),
+    playBtn: document.getElementById('playBtn'),
+    pauseBtn: document.getElementById('pauseBtn'),
+    skipBtn: document.getElementById('skipBtn'),
+    wordStage: document.getElementById('wordStage'),
+    bigWord: document.getElementById('bigWord'),
+    celebrateModal: document.getElementById('celebrateModal'),
+    celebrateCount: document.getElementById('celebrateCount'),
+    celebrateTitle: document.getElementById('celebrateTitle'),
+    celebrateBody: document.getElementById('celebrateBody'),
+    celebrateBtn: document.getElementById('celebrateBtn')
+  };
+
+  function spawnConfetti() {
+    var colors = ['#F2B134', '#4ECDA0', '#7CC6FE', '#FF8FB1', '#FFE6A3'];
+    for (var i = 0; i < 26; i++) {
+      var p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = randInt(4, 96) + '%';
+      p.style.background = colors[randInt(0, colors.length - 1)];
+      p.style.animationDuration = (0.9 + Math.random() * 0.6) + 's';
+      p.style.animationDelay = (Math.random() * 0.15) + 's';
+      p.style.transform = 'rotate(' + randInt(0, 360) + 'deg)';
+      els.sheetEl.appendChild(p);
+      (function (el) { setTimeout(function () { el.remove(); }, 1700); })(p);
+    }
+  }
+
+  function spawnSlime() {
+    var colors = ['#8BC34A', '#7CB518', '#A4D65E'];
+    var overlay = document.createElement('div');
+    overlay.className = 'slime-overlay';
+    var wash = document.createElement('div');
+    wash.className = 'slime-wash';
+    overlay.appendChild(wash);
+    for (var i = 0; i < 18; i++) {
+      var s = document.createElement('div');
+      s.className = 'slime-drip';
+      s.style.left = randInt(0, 98) + 'vw';
+      s.style.width = randInt(28, 58) + 'px';
+      s.style.height = randInt(140, 340) + 'px';
+      s.style.background = 'radial-gradient(circle at 30% 20%, rgba(255,255,255,.45), transparent 45%), ' + colors[randInt(0, colors.length - 1)];
+      s.style.animationDelay = (Math.random() * 0.3) + 's';
+      overlay.appendChild(s);
+    }
+    document.body.appendChild(overlay);
+    setTimeout(function () { overlay.remove(); }, 2600);
+  }
+
+  var popTimer = null;
+
+  function popText(text, cls) {
+    var el = els.popToast;
+    el.querySelector('.word').textContent = text;
+    el.className = 'pop-toast';
+    void el.offsetWidth;
+    el.classList.add('show', cls);
+    clearTimeout(popTimer);
+    popTimer = setTimeout(function () { el.classList.remove('show'); }, 900);
+  }
+
+  function storageKey(level) {
+    return 'calcul-mental-best-' + (state.expert ? 'expert-' : '') + level;
+  }
+
+  function loadBest(level) {
+    try {
+      var v = localStorage.getItem(storageKey(level));
+      return v ? JSON.parse(v) : null;
+    } catch (e) { return null; }
+  }
+
+  function saveBest(level, correct) {
+    try {
+      var prev = loadBest(level);
+      if (!prev || correct > prev) {
+        localStorage.setItem(storageKey(level), JSON.stringify(correct));
+      }
+    } catch (e) {}
+  }
+
+  function nextSheetNumber() {
+    try {
+      var n = parseInt(localStorage.getItem('calcul-mental-sheet-number') || '0', 10) + 1;
+      localStorage.setItem('calcul-mental-sheet-number', String(n));
+      return n;
+    } catch (e) { return 1; }
+  }
+
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = randInt(0, i);
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function buildWordItems(bank, expert, total) {
+    var count = expert ? 6 : 4;
+    return shuffle(bank).slice(0, total).map(function (entry) {
+      var others = bank.filter(function (w) { return w.word !== entry.word; });
+      var sameLetter = others.filter(function (w) {
+        return w.word.charAt(0).toLowerCase() === entry.word.charAt(0).toLowerCase();
+      });
+      var ranked = shuffle(sameLetter).concat(shuffle(others));
+      var picked = [];
+      for (var i = 0; i < ranked.length && picked.length < count - 1; i++) {
+        if (picked.indexOf(ranked[i].word) === -1) picked.push(ranked[i].word);
+      }
+      return {
+        picture: entry.emoji,
+        story: '',
+        questionHtml: '',
+        choices: shuffle(picked.concat([entry.word])),
+        answer: entry.word
+      };
+    });
+  }
+
+  function buildSentenceItems(bank, expert, total) {
+    return shuffle(bank).slice(0, total).map(function (entry) {
+      var choices = entry.options.slice();
+      if (expert) {
+        var others = shuffle(bank.filter(function (o) { return o !== entry; }));
+        for (var i = 0; i < others.length && choices.length < 4; i++) {
+          var cand = others[i].options[randInt(0, others[i].options.length - 1)];
+          if (choices.indexOf(cand) === -1) choices.push(cand);
+        }
+      }
+      return {
+        picture: '',
+        story: '',
+        questionHtml: escapeHtml(entry.text).replace('___', '<span class="gap"></span>'),
+        choices: shuffle(choices),
+        answer: entry.answer
+      };
+    });
+  }
+
+  function buildStoryItems(bank, expert, total) {
+    var all = [];
+    bank.forEach(function (story) {
+      story.qs.forEach(function (q) { all.push({ story: story, q: q }); });
+    });
+    return shuffle(all).slice(0, total).map(function (it) {
+      var choices = [it.q.answer].concat(it.q.wrong);
+      if (expert) {
+        var extra = [];
+        it.story.qs.forEach(function (q) {
+          if (q !== it.q) extra = extra.concat(q.wrong, [q.answer]);
+        });
+        extra = shuffle(extra);
+        for (var i = 0; i < extra.length && choices.length < 4; i++) {
+          if (choices.indexOf(extra[i]) === -1) choices.push(extra[i]);
+        }
+      }
+      return {
+        picture: '',
+        story: it.story.text,
+        questionHtml: escapeHtml(it.q.q),
+        choices: shuffle(choices),
+        answer: it.q.answer
+      };
+    });
+  }
+
+  // Round-robin over the passages so every one is seen before any repeats.
+  function buildTextItems(bank, expert, total) {
+    var shuffled = shuffle(bank).map(function (p) { return { p: p, qs: shuffle(p.qs) }; });
+    var picked = [];
+    for (var round = 0; picked.length < total && round < 8; round++) {
+      for (var i = 0; i < shuffled.length && picked.length < total; i++) {
+        if (round < shuffled[i].qs.length) picked.push({ p: shuffled[i].p, q: shuffled[i].qs[round] });
+      }
+    }
+    return picked.map(function (it) {
+      var choices = [it.q.answer].concat(it.q.wrong);
+      if (expert) {
+        var extra = [];
+        it.p.qs.forEach(function (q) { if (q !== it.q) extra = extra.concat(q.wrong, [q.answer]); });
+        extra = shuffle(extra);
+        for (var i = 0; i < extra.length && choices.length < 4; i++) {
+          if (choices.indexOf(extra[i]) === -1) choices.push(extra[i]);
+        }
+      }
+      return {
+        picture: '',
+        story: it.p.text,
+        words: it.p.text.split(/\s+/),
+        questionHtml: escapeHtml(it.q.q),
+        choices: shuffle(choices),
+        answer: it.q.answer
+      };
+    });
+  }
+
+  function buildPool() {
+    if (state.subject !== 'reading') { state.pool = []; return; }
+    var bank = READING[state.lang] || READING.fr;
+    if (state.level === 'word') state.pool = buildWordItems(bank.words, state.expert, state.total);
+    else if (state.level === 'sentence') state.pool = buildSentenceItems(bank.sentences, state.expert, state.total);
+    else if (state.level === 'text') state.pool = buildTextItems(bank.texts, state.expert, state.total);
+    else state.pool = buildStoryItems(bank.stories, state.expert, state.total);
+  }
+
+  function makeProblem(level, expert) {
+    var op = Math.random() < 0.5 ? '+' : '−';
+    var a, b, t, ua;
+
+    if (level === 'ten') {
+      var cap = expert ? 20 : 10;
+      if (op === '+') {
+        a = randInt(1, cap - 1);
+        b = randInt(1, cap - a);
+      } else {
+        a = randInt(1, cap);
+        b = randInt(0, a);
+      }
+    } else if (level === 'twenty') {
+      if (expert) {
+        if (op === '+') {
+          a = randInt(10, 40);
+          b = randInt(2, Math.min(20, 50 - a));
+        } else {
+          a = randInt(20, 50);
+          b = randInt(2, Math.min(19, a));
+        }
+      } else {
+        var tens = randInt(0, 1) * 10;
+        if (op === '+') {
+          ua = randInt(0, 8);
+          a = tens + ua;
+          b = randInt(0, 9 - ua);
+        } else {
+          ua = randInt(0, 9);
+          a = tens + ua;
+          b = randInt(0, ua);
+        }
+      }
+    } else {
+      if (expert) {
+        if (op === '+') {
+          t = randInt(2, 8);
+          ua = randInt(2, 9);
+          a = t * 10 + ua;
+          b = randInt(11 - ua, 9);
+        } else {
+          t = randInt(2, 9);
+          ua = randInt(0, 8);
+          a = t * 10 + ua;
+          b = randInt(ua + 1, 9);
+        }
+      } else {
+        if (op === '+') {
+          a = randInt(2, 9);
+          b = randInt(Math.min(Math.max(2, 11 - a), 9), 9);
+        } else {
+          a = randInt(11, 18);
+          ua = a % 10;
+          b = randInt(ua + 1, 9);
+        }
+      }
+    }
+
+    var result = op === '+' ? a + b : a - b;
+    var missing = 'result';
+    if (expert && Math.random() < 0.35) {
+      missing = Math.random() < 0.5 ? 'b' : 'a';
+    }
+    var answer = missing === 'result' ? result : (missing === 'b' ? b : a);
+    return { a: a, b: b, op: op, result: result, answer: answer, missing: missing };
+  }
+
+  function renderDots() {
+    els.dots.innerHTML = '';
+    for (var i = 0; i < state.total; i++) {
+      var d = document.createElement('div');
+      d.className = 'dot';
+      if (state.results[i] === true) d.className += ' good';
+      else if (state.results[i] === false) d.className += ' bad';
+      if (i === state.index && state.index < state.total) d.className += ' current';
+      els.dots.appendChild(d);
+    }
+  }
+
+  function renderBest() {
+    var levelName = L().levelLabels[state.level];
+    var best = loadBest(state.level);
+    var bestText = best === null ? L().bestEmpty : best + '/' + state.total;
+    els.bestWrap.innerHTML = L().bestLabel(levelName) + ' <b>' + bestText + '</b>';
+  }
+
+  function renderStreak() {
+    els.streakWrap.innerHTML = L().streakLabel + ' <b>' + state.streak + '</b>';
+  }
+
+  function renderSheetLabel() {
+    els.sheetLabel.textContent = L().challenge(state.sheetNumber);
+  }
+
+  function renderGradeBox() {
+    els.gradeBox.textContent = state.correctCount + '/' + state.total;
+  }
+
+  function buildKeypad() {
+    els.keypad.innerHTML = '';
+    var layout = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓'];
+    layout.forEach(function (label) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'key';
+      btn.textContent = label;
+      if (label === '⌫') {
+        btn.setAttribute('data-key', 'backspace');
+        btn.setAttribute('aria-label', L().backspaceAria);
+        btn.addEventListener('click', function () { onBackspace(); });
+      } else if (label === '✓') {
+        btn.setAttribute('data-key', 'validate');
+        btn.setAttribute('aria-label', L().validateAria);
+        btn.addEventListener('click', function () { checkAnswer(); });
+      } else {
+        btn.addEventListener('click', function () { onDigit(label); });
+      }
+      els.keypad.appendChild(btn);
+    });
+  }
+
+  function renderAnswer() {
+    var display = document.getElementById('answerDisplay');
+    if (state.answer.length === 0) {
+      display.textContent = '?';
+      display.className = 'placeholder';
+    } else {
+      display.textContent = state.answer;
+      display.className = '';
+    }
+    els.checkBtn.disabled = state.answer.length === 0 || state.locked;
+  }
+
+  function onDigit(d) {
+    if (state.locked || state.subject !== 'math') return;
+    if (state.answer.length >= 2) return;
+    playClick();
+    state.answer += d;
+    renderAnswer();
+  }
+
+  function onBackspace() {
+    if (state.locked || state.subject !== 'math') return;
+    playClick();
+    state.answer = state.answer.slice(0, -1);
+    renderAnswer();
+  }
+
+  function setKeypadDisabled(disabled) {
+    Array.prototype.forEach.call(els.keypad.querySelectorAll('.key'), function (k) {
+      k.disabled = disabled;
+    });
+  }
+
+  function buildChoices(choices) {
+    var longest = 0;
+    choices.forEach(function (c) { longest = Math.max(longest, c.length); });
+    els.choices.innerHTML = '';
+    els.choices.className = 'choices' + ((longest > 13 || choices.length % 2 === 1) ? ' stack' : '');
+    els.choices.setAttribute('aria-label', L().choicesAria);
+    choices.forEach(function (text, i) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'choice';
+      btn.setAttribute('aria-pressed', 'false');
+      var num = document.createElement('span');
+      num.className = 'num';
+      num.setAttribute('aria-hidden', 'true');
+      num.textContent = String(i + 1);
+      var label = document.createElement('span');
+      label.textContent = text;
+      btn.appendChild(num);
+      btn.appendChild(label);
+      btn.addEventListener('click', function () { selectChoice(i); });
+      els.choices.appendChild(btn);
+    });
+  }
+
+  function selectChoice(i) {
+    if (state.locked || els.choices.hidden) return;
+    if (i < 0 || i >= els.choices.children.length) return;
+    playClick();
+    state.choiceIndex = i;
+    Array.prototype.forEach.call(els.choices.children, function (b, idx) {
+      b.setAttribute('aria-pressed', idx === i ? 'true' : 'false');
+    });
+    els.checkBtn.disabled = false;
+  }
+
+  var reader = { timer: null, words: [], spans: [], i: 0, playing: false, done: false };
+
+  function wordDelay(word) {
+    var base = 60000 / state.readSpeed;
+    var letters = word.replace(/[^0-9A-Za-zÀ-ÿ'’-]/g, '').length;
+    var d = base * (0.7 + Math.min(letters, 12) / 18);
+    if (/[.!?…]["»)]?$/.test(word)) d += base * 0.9;
+    else if (/[,;:]["»)]?$/.test(word)) d += base * 0.45;
+    return d;
+  }
+
+  function stopReader() {
+    clearTimeout(reader.timer);
+    reader.timer = null;
+    reader.playing = false;
+  }
+
+  function renderPassage(words) {
+    els.readStory.innerHTML = '';
+    reader.spans = words.map(function (word, i) {
+      if (i) els.readStory.appendChild(document.createTextNode(' '));
+      var span = document.createElement('span');
+      span.className = 'w';
+      span.textContent = word;
+      els.readStory.appendChild(span);
+      return span;
+    });
+  }
+
+  function highlightWord(i) {
+    reader.spans.forEach(function (span, idx) {
+      if (idx === i) span.classList.add('now');
+      else span.classList.remove('now');
+    });
+    if (state.readerMode === 'word') {
+      els.bigWord.textContent = i >= 0 ? (reader.words[i] || '') : '';
+      els.bigWord.className = '';
+    }
+  }
+
+  function renderReaderLabels() {
+    var L_ = L();
+    els.readerModeBtns[0].textContent = L_.readerAlong;
+    els.readerModeBtns[1].textContent = L_.readerWord;
+    els.readerModes.setAttribute('aria-label', L_.readerAria);
+    els.speedLabel.textContent = L_.speedLabel;
+    els.speedUnit.textContent = L_.speedUnit;
+    els.speedValue.textContent = state.readSpeed;
+    els.readSpeed.setAttribute('aria-label', L_.speedAria);
+    els.pauseBtn.textContent = L_.pauseBtn;
+    els.skipBtn.textContent = L_.skipBtn;
+    els.playBtn.textContent = reader.done ? L_.replayBtn : (reader.i > 0 ? L_.resumeBtn : L_.playBtn);
+    els.readerModeBtns.forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-reader') === state.readerMode ? 'true' : 'false');
+    });
+  }
+
+  function setupReader(item) {
+    stopReader();
+    reader.words = item.words;
+    reader.i = 0;
+    reader.done = false;
+    renderPassage(item.words);
+    var wordMode = state.readerMode === 'word';
+    els.readStory.classList.add('passage');
+    els.readStory.hidden = wordMode;
+    els.wordStage.hidden = !wordMode;
+    els.bigWord.textContent = item.words[0] || '';
+    els.bigWord.className = 'dim';
+    els.readerBar.hidden = false;
+    els.readQuestion.hidden = true;
+    els.choices.hidden = true;
+    els.playBtn.hidden = false;
+    els.pauseBtn.hidden = true;
+    els.skipBtn.hidden = false;
+    renderReaderLabels();
+  }
+
+  function readerStep() {
+    if (!reader.playing) return;
+    if (reader.i >= reader.words.length) { finishReading(); return; }
+    highlightWord(reader.i);
+    var word = reader.words[reader.i];
+    reader.timer = setTimeout(function () {
+      reader.i++;
+      readerStep();
+    }, wordDelay(word));
+  }
+
+  function playReading() {
+    if (reader.done || reader.i >= reader.words.length) { reader.i = 0; reader.done = false; }
+    var wordMode = state.readerMode === 'word';
+    els.wordStage.hidden = !wordMode;
+    els.readStory.hidden = wordMode;
+    reader.playing = true;
+    els.playBtn.hidden = true;
+    els.pauseBtn.hidden = false;
+    els.skipBtn.hidden = false;
+    readerStep();
+  }
+
+  function pauseReading() {
+    stopReader();
+    els.playBtn.hidden = false;
+    els.pauseBtn.hidden = true;
+    renderReaderLabels();
+  }
+
+  function finishReading() {
+    stopReader();
+    reader.done = true;
+    highlightWord(-1);
+    els.wordStage.hidden = true;
+    els.readStory.hidden = false;
+    els.readQuestion.hidden = false;
+    els.choices.hidden = false;
+    els.playBtn.hidden = false;
+    els.pauseBtn.hidden = true;
+    els.skipBtn.hidden = true;
+    renderReaderLabels();
+    if (!state.locked) {
+      els.checkBtn.hidden = false;
+      els.checkBtn.disabled = state.choiceIndex < 0;
+    }
+  }
+
+  function setReaderMode(mode) {
+    state.readerMode = mode;
+    try { localStorage.setItem('calcul-mental-reader-mode', mode); } catch (e) {}
+    renderReaderLabels();
+    if (state.subject !== 'reading' || state.level !== 'text' || !reader.words.length) return;
+    if (reader.done) {
+      els.wordStage.hidden = true;
+      els.readStory.hidden = false;
+      return;
+    }
+    stopReader();
+    reader.i = 0;
+    highlightWord(-1);
+    var wordMode = mode === 'word';
+    els.wordStage.hidden = !wordMode;
+    els.readStory.hidden = wordMode;
+    els.bigWord.textContent = reader.words[0] || '';
+    els.bigWord.className = 'dim';
+    els.playBtn.hidden = false;
+    els.pauseBtn.hidden = true;
+    renderReaderLabels();
+  }
+
+  function revealChoices() {
+    Array.prototype.forEach.call(els.choices.children, function (b, idx) {
+      b.disabled = true;
+      b.setAttribute('aria-pressed', 'false');
+      if (state.current.choices[idx] === state.current.answer) b.classList.add('correct');
+      else if (idx === state.choiceIndex) b.classList.add('wrong');
+      else b.classList.add('dim');
+    });
+  }
+
+  function getAudioCtx() {
+    if (!window.__sfxCtx) {
+      window.__sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    var ctx = window.__sfxCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function playClick() {
+    try {
+      var ctx = getAudioCtx();
+      var t0 = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1100, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(CLICK_PEAK, t0 + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.06);
+    } catch (e) {}
+  }
+
+  function playCorrect() {
+    try {
+      var ctx = getAudioCtx();
+      var t0 = ctx.currentTime;
+      [523.25, 659.25, 783.99].forEach(function (freq, i) {
+        var start = t0 + i * 0.09;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.2, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.24);
+      });
+    } catch (e) {}
+  }
+
+  function playIncorrect() {
+    try {
+      var ctx = getAudioCtx();
+      var t0 = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, t0);
+      osc.frequency.exponentialRampToValueAtTime(140, t0 + 0.28);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.18, t0 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.32);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.34);
+    } catch (e) {}
+  }
+
+  function playMeow() {
+    try {
+      var ctx = getAudioCtx();
+      var t0 = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(500, t0);
+      osc.frequency.exponentialRampToValueAtTime(850, t0 + 0.09);
+      osc.frequency.exponentialRampToValueAtTime(320, t0 + 0.32);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.16, t0 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.34);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.36);
+    } catch (e) {}
+  }
+
+  var CHORDS = [
+    { bass: 130.81, tones: [261.63, 329.63, 392.00] },
+    { bass: 98.00, tones: [246.94, 293.66, 392.00] },
+    { bass: 110.00, tones: [220.00, 261.63, 329.63] },
+    { bass: 87.31, tones: [220.00, 261.63, 349.23] }
+  ];
+  var ARP = [0, 1, 2, 1, 0, 1, 2, 1];
+  var STEP_DUR = 60 / 96 / 2;
+
+  var MUSIC_PEAK = 0.3;
+
+  var music = { on: false, gain: null, timer: null, nextTime: 0, step: 0, starting: false };
+
+  function musicTargetGain() {
+    return Math.max(0.0001, MUSIC_PEAK * (state.musicVolume / 100));
+  }
+
+  function musicPlaying() {
+    return music.on && (music.timer !== null || music.starting);
+  }
+
+  function musicNote(ctx, freq, time, dur, type, vol) {
+    var osc = ctx.createOscillator();
+    var g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, time);
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.exponentialRampToValueAtTime(vol, time + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    osc.connect(g).connect(music.gain);
+    osc.start(time);
+    osc.stop(time + dur + 0.05);
+  }
+
+  function scheduleStep(ctx, step, time) {
+    var chord = CHORDS[Math.floor(step / 8) % CHORDS.length];
+    musicNote(ctx, chord.tones[ARP[step % 8]], time, 0.42, 'triangle', 0.5);
+    if (step % 4 === 0) {
+      musicNote(ctx, chord.bass, time, 0.7, 'sine', 0.75);
+    }
+  }
+
+  function beginScheduler() {
+    music.starting = false;
+    if (!music.on || music.timer) return;
+    var ctx;
+    try { ctx = getAudioCtx(); } catch (e) { return; }
+    if (ctx.state !== 'running') return;
+    if (!music.gain) {
+      music.gain = ctx.createGain();
+      music.gain.gain.value = 0.0001;
+      music.gain.connect(ctx.destination);
+    }
+    music.gain.gain.cancelScheduledValues(ctx.currentTime);
+    music.gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    music.gain.gain.linearRampToValueAtTime(musicTargetGain(), ctx.currentTime + 0.8);
+    music.nextTime = ctx.currentTime + 0.1;
+    music.step = 0;
+    music.timer = setInterval(function () {
+      if (ctx.state !== 'running') return;
+      if (music.nextTime < ctx.currentTime) music.nextTime = ctx.currentTime + 0.05;
+      while (music.nextTime < ctx.currentTime + 0.15) {
+        scheduleStep(ctx, music.step, music.nextTime);
+        music.nextTime += STEP_DUR;
+        music.step = (music.step + 1) % (CHORDS.length * 8);
+      }
+    }, 25);
+  }
+
+  function stopScheduler() {
+    clearInterval(music.timer);
+    music.timer = null;
+    if (!music.gain) return;
+    try {
+      var ctx = getAudioCtx();
+      music.gain.gain.cancelScheduledValues(ctx.currentTime);
+      music.gain.gain.setValueAtTime(music.gain.gain.value, ctx.currentTime);
+      music.gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+    } catch (e) {}
+  }
+
+  function setMusic(on) {
+    music.on = on;
+    els.musicBtn.setAttribute('aria-checked', on ? 'true' : 'false');
+    try { localStorage.setItem('calcul-mental-music', on ? 'on' : 'off'); } catch (e) {}
+    if (on) {
+      music.starting = true;
+      try { getAudioCtx().resume().then(beginScheduler).catch(function () { music.starting = false; }); }
+      catch (e) { music.starting = false; }
+    } else {
+      music.starting = false;
+      stopScheduler();
+    }
+  }
+
+  // Browsers suspend the audio context until a gesture, and again whenever the
+  // tab is backgrounded or the phone is locked. Pick the music back up instead
+  // of leaving the switch on and silent.
+  function resumeIfNeeded() {
+    if (!music.on) return;
+    try {
+      var ctx = getAudioCtx();
+      if (ctx.state !== 'running') ctx.resume().catch(function () {});
+    } catch (e) {}
+    if (music.timer || music.starting) return;
+    music.starting = true;
+    try { getAudioCtx().resume().then(beginScheduler).catch(function () { music.starting = false; }); }
+    catch (e) { music.starting = false; }
+  }
+
+  function healAudio(e) {
+    if (e && e.target && els.musicBtn.contains(e.target)) return;
+    resumeIfNeeded();
+  }
+
+  function restoreMusicPref() {
+    var saved = null;
+    try { saved = localStorage.getItem('calcul-mental-music'); } catch (e) {}
+    if (saved !== 'on') return;
+    music.on = true;
+    els.musicBtn.setAttribute('aria-checked', 'true');
+  }
+
+  function playFireworkPop() {
+    try {
+      var ctx = getAudioCtx();
+      var t0 = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(400, t0);
+      osc.frequency.exponentialRampToValueAtTime(1200, t0 + 0.18);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.06, t0 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.2);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.22);
+
+      var len = Math.floor(ctx.sampleRate * 0.5);
+      var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      var data = buf.getChannelData(0);
+      for (var i = 0; i < len; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+      }
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      var filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 800;
+      var ng = ctx.createGain();
+      ng.gain.setValueAtTime(0.16, t0 + 0.2);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7);
+      src.connect(filter).connect(ng).connect(ctx.destination);
+      src.start(t0 + 0.2);
+    } catch (e) {}
+  }
+
+  function spawnFireworks() {
+    var colors = ['#F2B134', '#4ECDA0', '#7CC6FE', '#FF8FB1', '#FFE6A3', '#FF6B6B'];
+    var bursts = 6;
+    var overlay = document.createElement('div');
+    overlay.className = 'firework-overlay';
+    document.body.appendChild(overlay);
+    for (var b = 0; b < bursts; b++) {
+      (function (index) {
+        setTimeout(function () {
+          var cx = randInt(15, 85);
+          var cy = randInt(12, 60);
+          var color = colors[randInt(0, colors.length - 1)];
+          for (var i = 0; i < 16; i++) {
+            var angle = (Math.PI * 2 * i) / 16;
+            var dist = randInt(60, 115);
+            var particle = document.createElement('div');
+            particle.className = 'firework-particle';
+            particle.style.left = cx + 'vw';
+            particle.style.top = cy + 'vh';
+            particle.style.background = color;
+            particle.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(1) + 'px');
+            particle.style.setProperty('--dy', (Math.sin(angle) * dist).toFixed(1) + 'px');
+            particle.style.animationDelay = (Math.random() * 0.05).toFixed(3) + 's';
+            overlay.appendChild(particle);
+          }
+          playFireworkPop();
+        }, index * 380);
+      })(b);
+    }
+    setTimeout(function () { overlay.remove(); }, bursts * 380 + 1600);
+  }
+
+  function maybeShowCat() {
+    if (randInt(1, 100) !== 1) return;
+    els.catPop.hidden = false;
+    playMeow();
+    setTimeout(function () { els.catPop.hidden = true; }, 2200);
+  }
+
+  function renderMathProblem() {
+    state.current = makeProblem(state.level, state.expert);
+    var p = state.current;
+    var blank = '<span id="answerDisplay" class="placeholder">?</span>';
+    var opSpan = '<span class="eq">' + p.op + '</span>';
+    var eqSpan = '<span class="eq">=</span>';
+    if (p.missing === 'a') {
+      els.equation.innerHTML = blank + opSpan + '<span>' + p.b + '</span>' + eqSpan + '<span>' + p.result + '</span>';
+    } else if (p.missing === 'b') {
+      els.equation.innerHTML = '<span>' + p.a + '</span>' + opSpan + blank + eqSpan + '<span>' + p.result + '</span>';
+    } else {
+      els.equation.innerHTML = '<span>' + p.a + '</span>' + opSpan + '<span>' + p.b + '</span>' + eqSpan + blank;
+    }
+    setKeypadDisabled(false);
+    renderAnswer();
+  }
+
+  function renderReadingProblem() {
+    stopReader();
+    if (!state.pool.length) buildPool();
+    state.current = state.pool[state.index % state.pool.length];
+    var item = state.current;
+    els.readPrompt.textContent = L().readPrompts[state.level];
+    els.readPicture.textContent = item.picture || '';
+    els.readPicture.hidden = !item.picture;
+    els.readQuestion.innerHTML = item.questionHtml || '';
+    buildChoices(item.choices);
+    els.checkBtn.disabled = true;
+    if (item.words) {
+      setupReader(item);
+    } else {
+      els.readerBar.hidden = true;
+      els.wordStage.hidden = true;
+      els.readStory.classList.remove('passage');
+      els.readStory.textContent = item.story || '';
+      els.readStory.hidden = !item.story;
+      els.readQuestion.hidden = !item.questionHtml;
+      els.choices.hidden = false;
+    }
+  }
+
+  function newProblem() {
+    state.answer = '';
+    state.choiceIndex = -1;
+    state.locked = false;
+    if (state.subject === 'reading') renderReadingProblem();
+    else renderMathProblem();
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
+    els.checkBtn.hidden = state.subject === 'reading' && state.level === 'text';
+    els.nextBtn.hidden = true;
+    renderDots();
+    maybeShowCat();
+  }
+
+  function checkAnswer() {
+    if (state.locked) return;
+    var correct;
+    if (state.subject === 'reading') {
+      if (state.choiceIndex < 0) return;
+      correct = state.current.choices[state.choiceIndex] === state.current.answer;
+      state.locked = true;
+      revealChoices();
+    } else {
+      if (state.answer.length === 0) return;
+      correct = parseInt(state.answer, 10) === state.current.answer;
+      state.locked = true;
+      setKeypadDisabled(true);
+    }
+    state.results[state.index] = correct;
+    els.checkBtn.disabled = true;
+
+    if (correct) {
+      state.correctCount++;
+      state.streak++;
+      var goodMessages = L().goodMessages;
+      var msg = goodMessages[randInt(0, goodMessages.length - 1)];
+      if (state.streak > 0 && state.streak % 3 === 0) {
+        msg += L().comboSuffix(state.streak);
+      }
+      els.feedback.textContent = msg;
+      els.feedback.className = 'feedback good';
+      popText(L().popYeah, 'good');
+      playCorrect();
+      spawnConfetti();
+    } else {
+      state.streak = 0;
+      els.feedback.textContent = L().incorrectMsg(state.current.answer);
+      els.feedback.className = 'feedback bad';
+      popText(L().popOoh, 'bad');
+      playIncorrect();
+      setTimeout(spawnSlime, 850);
+    }
+
+    renderGradeBox();
+    renderDots();
+    renderStreak();
+    els.checkBtn.hidden = true;
+    els.nextBtn.hidden = false;
+    els.nextBtn.focus();
+  }
+
+  function openCelebration(n) {
+    var L_ = L();
+    els.celebrateCount.textContent = L_.celebrateCount;
+    els.celebrateTitle.textContent = L_.celebrateTitle(n);
+    els.celebrateBody.textContent = L_.celebrateMessages[randInt(0, L_.celebrateMessages.length - 1)];
+    els.celebrateBtn.textContent = L_.celebrateBtn;
+    els.celebrateModal.hidden = false;
+    els.celebrateBtn.focus();
+    spawnFireworks();
+  }
+
+  function closeCelebration() {
+    els.celebrateModal.hidden = true;
+  }
+
+  function advance() {
+    var streakHit = state.results[state.index] === true &&
+      state.streak > 0 && state.streak % STREAK_CELEBRATE === 0;
+    state.index++;
+    if (state.index >= state.total) {
+      showResults();
+    } else {
+      newProblem();
+    }
+    if (streakHit) openCelebration(state.streak);
+  }
+
+  function showResults() {
+    stopReader();
+    els.problemZone.hidden = true;
+    els.resultsZone.hidden = false;
+    var pct = Math.round((state.correctCount / state.total) * 100);
+    var low = pct < 60;
+    els.resultsInner.parentElement.className = low ? 'results low' : 'results';
+    var bonus = pct >= 70 ? L().resultsBonus : '';
+    var levelName = L().levelLabels[state.level];
+    els.resultsInner.innerHTML =
+      '<div class="grade">' + pct + '%</div>' +
+      '<p>' + L().resultsText(state.correctCount, state.total, levelName, bonus) + '</p>';
+    saveBest(state.level, state.correctCount);
+    renderBest();
+    if (pct >= 90) spawnFireworks();
+  }
+
+  function startSheet(level) {
+    state.level = level;
+    state.total = state.expert ? QUESTIONS.expert : QUESTIONS.normal;
+    state.index = 0;
+    state.correctCount = 0;
+    state.streak = 0;
+    state.results = [];
+    state.sheetNumber = nextSheetNumber();
+    els.problemZone.hidden = false;
+    els.resultsZone.hidden = true;
+    stopReader();
+    buildPool();
+    applyTabs();
+    renderSheetLabel();
+    renderStreak();
+    renderGradeBox();
+    renderBest();
+    newProblem();
+  }
+
+  function applyTabs() {
+    els.tabsGroup.innerHTML = '';
+    LEVELS[state.subject].forEach(function (lvl) {
+      var tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = 'tab';
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('data-level', lvl);
+      tab.textContent = L().levelLabels[lvl];
+      if (lvl === 'carry') tab.setAttribute('aria-label', L().levelAriaCarry);
+      tab.setAttribute('aria-pressed', lvl === state.level ? 'true' : 'false');
+      tab.addEventListener('click', function () { playClick(); startSheet(lvl); });
+      els.tabsGroup.appendChild(tab);
+    });
+  }
+
+  function applySubject() {
+    var reading = state.subject === 'reading';
+    els.mathZone.hidden = reading;
+    els.readingZone.hidden = !reading;
+    els.titleText.textContent = reading ? L().readTitle : L().title;
+    els.taglineText.textContent = reading ? L().readTagline : L().tagline;
+    els.subjectBtns.forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-subject') === state.subject ? 'true' : 'false');
+    });
+  }
+
+  function applyLanguage(lang) {
+    state.lang = lang;
+    try { localStorage.setItem('calcul-mental-lang', lang); } catch (e) {}
+    var L_ = LANG[lang];
+    document.documentElement.lang = lang;
+    els.sheetEl.lang = lang;
+    els.tabsGroup.setAttribute('aria-label', L_.levelGroupAria);
+    els.subjectSwitch.setAttribute('aria-label', L_.subjectGroupAria);
+    els.subjectBtns.forEach(function (b) {
+      b.querySelector('.txt').textContent = L_.subjects[b.getAttribute('data-subject')];
+    });
+    applySubject();
+    applyTabs();
+    els.readPrompt.textContent = L_.readPrompts[state.level] || '';
+    els.choices.setAttribute('aria-label', L_.choicesAria);
+    els.celebrateBtn.textContent = L_.celebrateBtn;
+    els.celebrateCount.textContent = L_.celebrateCount;
+    renderReaderLabels();
+    els.keypad.setAttribute('aria-label', L_.keypadAria);
+    var bsBtn = els.keypad.querySelector('[data-key="backspace"]');
+    if (bsBtn) bsBtn.setAttribute('aria-label', L_.backspaceAria);
+    var vBtn = els.keypad.querySelector('[data-key="validate"]');
+    if (vBtn) vBtn.setAttribute('aria-label', L_.validateAria);
+    els.checkBtn.textContent = L_.validateBtn;
+    els.nextBtn.textContent = L_.nextBtn;
+    els.newSheetBtn.textContent = L_.newSheetBtn;
+    els.resetBtn.textContent = L_.resetBtn;
+    els.expertLabel.textContent = L_.expertLabel;
+    els.signInBtn.textContent = L_.signInBtn;
+    els.signUpBtn.textContent = L_.signUpBtn;
+    els.musicLabel.textContent = L_.musicLabel;
+    els.musicVolume.setAttribute('aria-label', L_.volumeLabel);
+    els.resetTitle.textContent = L_.modalTitle;
+    els.resetBody.textContent = L_.modalBody;
+    els.resetCancel.textContent = L_.modalCancel;
+    els.resetConfirm.textContent = L_.modalConfirm;
+    els.catBubbleText.textContent = L_.catBubble;
+    els.langBtns.forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false');
+    });
+    renderSheetLabel();
+    renderStreak();
+    renderBest();
+  }
+
+  function openResetModal() {
+    playClick();
+    els.resetModal.hidden = false;
+    els.resetConfirm.focus();
+  }
+
+  function closeResetModal() {
+    els.resetModal.hidden = true;
+    els.resetBtn.focus();
+  }
+
+  function doReset() {
+    try {
+      LEVELS.math.concat(LEVELS.reading).forEach(function (lvl) {
+        localStorage.removeItem('calcul-mental-best-' + lvl);
+        localStorage.removeItem('calcul-mental-best-expert-' + lvl);
+      });
+      localStorage.removeItem('calcul-mental-sheet-number');
+    } catch (e) {}
+    closeResetModal();
+    renderBest();
+  }
+
+  els.langBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      playClick();
+      var lang = btn.getAttribute('data-lang');
+      if (lang === state.lang) return;
+      applyLanguage(lang);
+      if (state.subject === 'reading' && els.resultsZone.hidden) {
+        buildPool();
+        if (!state.locked) newProblem();
+      }
+    });
+  });
+
+  els.subjectBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      playClick();
+      var subject = btn.getAttribute('data-subject');
+      if (subject === state.subject) return;
+      state.subject = subject;
+      try { localStorage.setItem('calcul-mental-subject', subject); } catch (e) {}
+      applySubject();
+      startSheet(LEVELS[subject][0]);
+    });
+  });
+
+  els.expertBtn.addEventListener('click', function () {
+    playClick();
+    state.expert = !state.expert;
+    els.expertBtn.setAttribute('aria-checked', state.expert ? 'true' : 'false');
+    try { localStorage.setItem('calcul-mental-expert', state.expert ? 'on' : 'off'); } catch (e) {}
+    startSheet(state.level);
+  });
+
+  els.musicBtn.addEventListener('click', function () {
+    playClick();
+    setMusic(!musicPlaying());
+  });
+
+  document.addEventListener('pointerdown', healAudio, true);
+  document.addEventListener('keydown', healAudio, true);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) resumeIfNeeded();
+  });
+  window.addEventListener('pageshow', resumeIfNeeded);
+  window.addEventListener('focus', resumeIfNeeded);
+
+  els.musicVolume.addEventListener('input', function () {
+    state.musicVolume = parseInt(els.musicVolume.value, 10) || 0;
+    try { localStorage.setItem('calcul-mental-music-volume', String(state.musicVolume)); } catch (e) {}
+    if (!music.gain) return;
+    try {
+      var ctx = getAudioCtx();
+      music.gain.gain.cancelScheduledValues(ctx.currentTime);
+      music.gain.gain.setValueAtTime(music.on ? musicTargetGain() : 0.0001, ctx.currentTime);
+    } catch (e) {}
+  });
+
+  els.resetBtn.addEventListener('click', openResetModal);
+  els.resetCancel.addEventListener('click', function () { playClick(); closeResetModal(); });
+  els.resetConfirm.addEventListener('click', function () { playClick(); doReset(); });
+  els.resetModal.addEventListener('click', function (e) {
+    if (e.target === els.resetModal) closeResetModal();
+  });
+
+  els.readerModeBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      playClick();
+      setReaderMode(btn.getAttribute('data-reader'));
+    });
+  });
+
+  els.playBtn.addEventListener('click', function () { playClick(); playReading(); });
+  els.pauseBtn.addEventListener('click', function () { playClick(); pauseReading(); });
+  els.skipBtn.addEventListener('click', function () { playClick(); finishReading(); });
+
+  els.readSpeed.addEventListener('input', function () {
+    state.readSpeed = parseInt(els.readSpeed.value, 10) || READ_SPEED_DEFAULT;
+    try { localStorage.setItem('calcul-mental-reader-speed', String(state.readSpeed)); } catch (e) {}
+    els.speedValue.textContent = state.readSpeed;
+  });
+
+  els.celebrateBtn.addEventListener('click', function () { playClick(); closeCelebration(); });
+  els.celebrateModal.addEventListener('click', function (e) {
+    if (e.target === els.celebrateModal) closeCelebration();
+  });
+
+  els.checkBtn.addEventListener('click', checkAnswer);
+  els.nextBtn.addEventListener('click', function () { playClick(); advance(); });
+  els.newSheetBtn.addEventListener('click', function () { playClick(); startSheet(state.level); });
+
+
+  document.addEventListener('keydown', function (e) {
+    if (!els.resetModal.hidden) {
+      if (e.key === 'Escape') closeResetModal();
+      return;
+    }
+    if (!els.celebrateModal.hidden) {
+      if (e.key === 'Escape' || e.key === 'Enter') closeCelebration();
+      return;
+    }
+    if (els.resultsZone.hidden === false) return;
+    if (state.subject === 'reading') {
+      if (!state.locked && e.key >= '1' && e.key <= '6') {
+        selectChoice(parseInt(e.key, 10) - 1);
+      } else if (e.key === 'Enter') {
+        if (state.locked) advance();
+        else checkAnswer();
+      }
+      return;
+    }
+    if (!state.locked && e.key >= '0' && e.key <= '9') {
+      onDigit(e.key);
+    } else if (!state.locked && e.key === 'Backspace') {
+      onBackspace();
+    } else if (e.key === 'Enter') {
+      if (state.locked) advance();
+      else checkAnswer();
+    }
+  });
+
+  var clerkStarted = false;
+  var userButtonMounted = false;
+
+  function renderAuth() {
+    var clerk = window.Clerk;
+    var signedIn = !!clerk.user;
+    els.signInBtn.hidden = signedIn;
+    els.signUpBtn.hidden = signedIn;
+    els.userButton.hidden = !signedIn;
+    if (signedIn && !userButtonMounted) {
+      clerk.mountUserButton(els.userButton);
+      userButtonMounted = true;
+    } else if (!signedIn && userButtonMounted) {
+      clerk.unmountUserButton(els.userButton);
+      userButtonMounted = false;
+    }
+    els.authBox.hidden = false;
+  }
+
+  function initAuth() {
+    var clerk = window.Clerk;
+    if (!clerk || clerkStarted) return;
+    clerkStarted = true;
+    clerk.load({
+      ui: { ClerkUI: window.__internal_ClerkUICtor },
+      appearance: {
+        variables: {
+          colorPrimary: '#F2B134',
+          colorPrimaryForeground: '#3A2508',
+          colorBackground: '#0f2b52',
+          colorForeground: '#F4F7FC',
+          colorMutedForeground: '#9FB6DE',
+          colorBorder: '#1f4d8c',
+          colorInput: '#163a6c',
+          colorInputForeground: '#F4F7FC',
+          colorDanger: '#F0685B',
+          colorSuccess: '#4ECDA0',
+          fontFamily: "'Public Sans', -apple-system, 'Segoe UI', sans-serif",
+          borderRadius: '10px'
+        }
+      }
+    }).then(function () {
+      renderAuth();
+      clerk.addListener(renderAuth);
+    })['catch'](function (err) {
+      // Signing in is optional: the app stays fully playable if Clerk never loads.
+      if (window.console) console.warn('Clerk failed to load', err);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuth);
+  } else {
+    initAuth();
+  }
+
+  els.signInBtn.addEventListener('click', function () {
+    playClick();
+    if (window.Clerk) window.Clerk.openSignIn();
+  });
+
+  els.signUpBtn.addEventListener('click', function () {
+    playClick();
+    if (window.Clerk) window.Clerk.openSignUp();
+  });
+
+  buildKeypad();
+  els.expertBtn.setAttribute('aria-checked', state.expert ? 'true' : 'false');
+  state.level = LEVELS[state.subject][0];
+  applyLanguage(state.lang);
+  startSheet(state.level);
+  els.musicVolume.value = state.musicVolume;
+  els.readSpeed.value = state.readSpeed;
+  els.speedValue.textContent = state.readSpeed;
+  restoreMusicPref();
+})();
+</script>
+</body>
+</html>
